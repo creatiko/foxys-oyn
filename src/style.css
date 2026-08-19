@@ -1,0 +1,488 @@
+@import "tailwindcss";
+
+/*
+ * Foxy's shared design tokens
+ *
+ * Palette variables describe the actual colors and remain fixed.
+ * Theme variables below decide how those colors are used.
+ */
+:root {
+  /* Palette */
+  --palette-aqua: #2ed3e4;
+  --palette-aqua-light: #35d9e9;
+  --palette-cyan: #1ecbde;
+
+  --palette-yellow: #ffd84e;
+  --palette-gold: #ffcc3e;
+  --palette-orange: #ffb13c;
+
+  --palette-coral: #ff4e5b;
+  --palette-coral-dark: #de2f3e;
+  --palette-magenta: #c72467;
+  --palette-red-deep: #8f0f26;
+
+  --palette-turquoise: #12c9b4;
+
+  --palette-green-dark: #063038;
+  --palette-green: #16454f;
+  --palette-green-deep: #06453e;
+
+  --palette-brown: #3a1206;
+  --palette-cream: #fff8e7;
+
+  /* Supporting colors used by Tropical V1 */
+  --palette-coral-bright: #ff5a5f;
+  --palette-green-bright: #06d6a0;
+  --palette-gold-bright: #ffc300;
+  --palette-orange-dark: #e08a1e;
+  --palette-teal-footer: #157a88;
+  --palette-cream-warm: #fff3d6;
+  --palette-sand-warm: #f4dfa3;
+  --palette-green-ink: #04333c;
+  --palette-green-black: #101b17;
+  --palette-success: #86efac;
+  --palette-success-border: #4ade80;
+  --palette-danger: #fca5a5;
+
+  /* Old Year's Night V1 palette */
+  --palette-oyn-teal-start: #0b6a76;
+  --palette-oyn-teal: #0a756b;
+  --palette-oyn-teal-ring: #39c4ac;
+  --palette-oyn-teal-venue: #0a6270;
+  --palette-oyn-magenta-ring: #db1b72;
+  --palette-oyn-rust: #b03a15;
+  --palette-oyn-rust-ring: #db3812;
+  --palette-oyn-purple: #6b2e93;
+  --palette-oyn-purple-deep: #57217a;
+  --palette-oyn-purple-ring: #7e2fbc;
+  --palette-oyn-warm: #ffe9a8;
+  --palette-oyn-muted: #ffebd6;
+  --palette-oyn-role: #fff0f7;
+  --palette-oyn-error: #7f1d1d;
+  --palette-oyn-hero-badge-teal: #0a7c89;
+  --palette-oyn-hero-salmon: #ff8a73;
+
+  /* Typography */
+  --font-family-mono: "IBM Plex Mono", monospace;
+  --font-family-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-family-hand: "Caveat", cursive;
+  --font-family-display: "Lilita One", ui-sans-serif, sans-serif;
+  --font-family-navigation: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+  /* Shape */
+  --brand-radius: 8px;
+
+  /* Shadows */
+  --brand-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.28);
+  --brand-shadow-md: 0 10px 26px rgba(0, 0, 0, 0.36);
+  --brand-shadow-lift: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --brand-shadow-inset:
+    inset 0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+/*
+ * Foxy's Tropical V1
+ *
+ * This is the original bright aqua / yellow Foxy's design.
+ * :root:not([data-theme]) keeps it as the default until the
+ * theme switcher applies an explicit data-theme value.
+ */
+:root:not([data-theme]),
+[data-theme="tropical-v1"] {
+  /* Page and surfaces */
+  --theme-page: var(--palette-aqua);
+  --theme-page-alt: var(--palette-yellow);
+  --theme-surface: var(--palette-yellow);
+  --theme-surface-alt: var(--palette-aqua);
+  --theme-surface-strong: var(--palette-green-dark);
+
+  /* Typography */
+  --theme-heading: var(--palette-green-dark);
+  --theme-foreground: var(--palette-green-dark);
+  --theme-muted: var(--palette-green);
+  --theme-inverse: var(--palette-cream);
+
+  /* Brand actions */
+  --theme-primary: var(--palette-aqua);
+  --theme-primary-hover: var(--palette-aqua-light);
+
+  --theme-secondary: var(--palette-yellow);
+  --theme-secondary-hover: var(--palette-gold);
+
+  /* Coral is really an action / CTA color */
+  --theme-action: var(--palette-coral);
+  --theme-action-hover: var(--palette-coral-dark);
+
+  --theme-accent: var(--palette-gold);
+  --theme-accent-hover: var(--palette-gold);
+  --theme-accent-alt: var(--palette-orange);
+  --theme-highlight: var(--palette-turquoise);
+  --theme-accent-deep: var(--palette-green-deep);
+
+  /* Navigation */
+  --theme-navbar: rgba(13, 31, 41, 0.75);
+  --theme-navbar-foreground: var(--palette-cream);
+  --theme-navbar-border: rgba(255, 248, 231, 0.42);
+  --theme-navbar-divider: rgba(6, 48, 56, 0.20);
+  --theme-navbar-active: var(--palette-gold);
+  --theme-navbar-active-border: var(--palette-gold);
+  --theme-navbar-active-foreground: var(--palette-brown);
+  --theme-navbar-mobile-surface: var(--palette-aqua-light);
+  --theme-navbar-icon: var(--palette-green-dark);
+
+  /* Action contrast */
+  --theme-accent-foreground: var(--palette-green-dark);
+
+  /* Borders and translucent surfaces */
+  --theme-border: rgba(6, 48, 56, 0.25);
+  --theme-border-inverse: rgba(255, 248, 231, 0.42);
+  --theme-surface-muted: rgba(255, 248, 231, 0.14);
+
+  /* Overlays and form surfaces */
+  --theme-overlay: rgba(0, 0, 0, 0.55);
+  --theme-overlay-soft: rgba(0, 0, 0, 0.20);
+  --theme-overlay-faint: rgba(0, 0, 0, 0.10);
+  --theme-input-surface: var(--palette-white);
+  --theme-input-foreground: var(--palette-aqua);
+
+  /* Ticket cart */
+  --theme-cart-surface: var(--palette-aqua);
+  --theme-cart-foreground: var(--palette-green-dark);
+  --theme-success: var(--palette-success);
+  --theme-success-border: var(--palette-success-border);
+  --theme-danger: var(--palette-danger);
+  --theme-warning: var(--palette-gold);
+
+  /* Story card accents */
+  --theme-family-founder: var(--palette-coral-bright);
+  --theme-family-cofounder: var(--palette-green-bright);
+  --theme-family-nextgen: var(--palette-gold-bright);
+
+  /* global media-frame */
+  --theme-media-frame-border: var(--palette-gold);
+  --theme-media-frame-surface: var(--palette-orange);
+
+  /* Footer */
+  --theme-footer-surface: var(--palette-teal-footer);
+  --theme-footer-foreground: var(--palette-cream-warm);
+  --theme-footer-muted: var(--palette-sand-warm);
+
+  /* Burgee presentation */
+  --theme-burgee-gradient-start: var(--palette-orange);
+  --theme-burgee-gradient-mid: var(--palette-orange-dark);
+  --theme-burgee-gradient-end: var(--palette-orange);
+  --theme-burgee-label: var(--palette-green-ink);
+  --theme-burgee-title: var(--palette-green-black);
+  --theme-burgee-meta: rgba(20, 15, 9, 0.85);
+  --theme-burgee-muted: rgba(16, 27, 23, 0.72);
+  --theme-burgee-highlight: rgba(255, 255, 255, 0.18);
+  --theme-burgee-edge: rgba(116, 70, 31, 0.28);
+  --theme-burgee-shadow: rgba(0, 0, 0, 0.35);
+  --theme-burgee-hover-shadow: rgba(8, 33, 30, 0.25);
+
+  /* Old Year's Night navigation sparkle */
+  --theme-oyn-sparkle: var(--palette-yellow);
+  --theme-oyn-glow-transparent: rgba(255, 216, 78, 0);
+  --theme-oyn-glow-soft: rgba(255, 216, 78, 0.40);
+  --theme-oyn-glow-medium: rgba(255, 216, 78, 0.45);
+  --theme-oyn-glow-strong: rgba(255, 216, 78, 0.95);
+
+  /* Old Year's Night */
+  --theme-oyn-hero-surface: var(--palette-green-dark);
+  --theme-oyn-foreground: var(--palette-cream);
+  --theme-oyn-warm: var(--palette-oyn-warm);
+  --theme-oyn-muted: var(--palette-oyn-muted);
+  --theme-oyn-role: var(--palette-oyn-role);
+  --theme-oyn-link: var(--palette-turquoise);
+  --theme-oyn-artist-surface: var(--palette-magenta);
+  --theme-oyn-countdown-surface: var(--palette-magenta);
+  --theme-oyn-timeline-accent: var(--palette-coral);
+  --theme-oyn-hero-badge-foreground: var(--palette-oyn-hero-badge-teal);
+  --theme-oyn-hero-tagline: var(--palette-oyn-hero-salmon);
+
+  --theme-oyn-hero-radial-overlay: radial-gradient(
+    120% 90% at 50% 40%,
+    rgba(8, 20, 24, 0.04) 0%,
+    rgba(8, 20, 24, 0.28) 65%,
+    rgba(8, 20, 24, 0.52) 100%
+  );
+  --theme-oyn-hero-vertical-overlay: linear-gradient(
+    180deg,
+    rgba(11, 130, 146, 0.30) 0%,
+    rgba(11, 20, 30, 0.08) 40%,
+    rgba(8, 20, 24, 0.52) 100%
+  );
+  --theme-oyn-hero-title-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.85),
+    0 6px 34px rgba(0, 0, 0, 0.70);
+  --theme-oyn-hero-tagline-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.95),
+    0 0 26px rgba(0, 0, 0, 0.75);
+  --theme-oyn-shadow-hero-badge: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+  --theme-oyn-ticket-entry: var(--palette-oyn-teal);
+  --theme-oyn-ticket-entry-ring: var(--palette-oyn-teal-ring);
+  --theme-oyn-ticket-vip: var(--palette-magenta);
+  --theme-oyn-ticket-vip-ring: var(--palette-oyn-magenta-ring);
+  --theme-oyn-ticket-bbq: var(--palette-oyn-rust);
+  --theme-oyn-ticket-bbq-ring: var(--palette-oyn-rust-ring);
+  --theme-oyn-ticket-crust: var(--palette-oyn-purple);
+  --theme-oyn-ticket-crust-ring: var(--palette-oyn-purple-ring);
+
+  --theme-oyn-venue-surface: var(--palette-oyn-teal-venue);
+  --theme-oyn-action-surface: var(--palette-cream);
+  --theme-oyn-action-foreground: var(--palette-brown);
+
+  --theme-oyn-error-surface: rgba(255, 255, 255, 0.40);
+  --theme-oyn-error-border: rgba(185, 28, 28, 0.25);
+  --theme-oyn-error: var(--palette-oyn-error);
+
+  --theme-oyn-shadow-hero: 0 18px 40px rgba(0, 0, 0, 0.38);
+  --theme-oyn-shadow-card: 0 10px 26px rgba(6, 48, 56, 0.16);
+  --theme-oyn-shadow-lift: 0 18px 40px rgba(6, 48, 56, 0.20);
+  --theme-oyn-shadow-soft: 0 2px 6px rgba(6, 48, 56, 0.14);
+  --theme-oyn-shadow-control: 0 10px 15px rgba(0, 0, 0, 0.10);
+
+  --theme-oyn-lineup-start: var(--palette-oyn-teal-start);
+  --theme-oyn-lineup-end: var(--palette-oyn-teal);
+  --theme-oyn-planner-start: var(--palette-oyn-purple);
+  --theme-oyn-planner-end: var(--palette-oyn-purple-deep);
+  --theme-oyn-ticket-shine: rgba(255, 255, 255, 0.16);
+  --theme-oyn-placeholder-stripe-strong: rgba(255, 248, 231, 0.08);
+  --theme-oyn-placeholder-stripe-soft: rgba(255, 248, 231, 0.03);
+  --theme-oyn-placeholder-base: var(--palette-green-deep);
+  --theme-oyn-countdown-glow: 0 0 12px rgba(255, 195, 0, 0.35);
+
+  /* Section gradients */
+  --theme-gradient-primary-start: var(--palette-cyan);
+  --theme-gradient-primary-end: var(--palette-yellow);
+
+  --theme-gradient-feature-start: var(--palette-yellow);
+  --theme-gradient-feature-mid: var(--palette-coral);
+  --theme-gradient-feature-end: var(--palette-yellow);
+}
+
+/*
+ * Semantic Tailwind utilities.
+ *
+ * Components use these names and never need to know which theme is active.
+ * Examples:
+ *   bg-page
+ *   bg-surface
+ *   text-heading
+ *   text-foreground
+ *   bg-primary
+ *   border-brand
+ */
+@theme inline {
+  /* Colors */
+  --color-page: var(--theme-page);
+  --color-page-alt: var(--theme-page-alt);
+
+  --color-surface: var(--theme-surface);
+  --color-surface-alt: var(--theme-surface-alt);
+  --color-surface-strong: var(--theme-surface-strong);
+  --color-surface-muted: var(--theme-surface-muted);
+
+  --color-heading: var(--theme-heading);
+  --color-foreground: var(--theme-foreground);
+  --color-muted: var(--theme-muted);
+  --color-inverse: var(--theme-inverse);
+
+  --color-primary: var(--theme-primary);
+  --color-primary-hover: var(--theme-primary-hover);
+
+  --color-secondary: var(--theme-secondary);
+  --color-secondary-hover: var(--theme-secondary-hover);
+
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+  --color-accent-alt: var(--theme-accent-alt);
+  --color-accent-deep: var(--theme-accent-deep);
+  --color-highlight: var(--theme-highlight);
+  --color-action: var(--theme-action);
+  --color-action-hover: var(--theme-action-hover);
+
+  --color-navbar: var(--theme-navbar);
+  --color-navbar-foreground: var(--theme-navbar-foreground);
+  --color-navbar-border: var(--theme-navbar-border);
+  --color-navbar-divider: var(--theme-navbar-divider);
+  --color-navbar-active: var(--theme-navbar-active);
+  --color-navbar-active-border: var(--theme-navbar-active-border);
+  --color-navbar-active-foreground: var(--theme-navbar-active-foreground);
+  --color-navbar-mobile-surface: var(--theme-navbar-mobile-surface);
+  --color-navbar-icon: var(--theme-navbar-icon);
+
+  --color-accent-foreground: var(--theme-accent-foreground);
+
+  --color-brand-border: var(--theme-border);
+  --color-brand-border-inverse: var(--theme-border-inverse);
+
+  --color-overlay: var(--theme-overlay);
+  --color-overlay-soft: var(--theme-overlay-soft);
+  --color-overlay-faint: var(--theme-overlay-faint);
+  --color-input-surface: var(--theme-input-surface);
+  --color-input-foreground: var(--theme-input-foreground);
+
+  --color-cart-surface: var(--theme-cart-surface);
+  --color-cart-foreground: var(--theme-cart-foreground);
+  --color-success: var(--theme-success);
+  --color-success-border: var(--theme-success-border);
+  --color-danger: var(--theme-danger);
+  --color-warning: var(--theme-warning);
+
+  --color-family-founder: var(--theme-family-founder);
+  --color-family-cofounder: var(--theme-family-cofounder);
+  --color-family-nextgen: var(--theme-family-nextgen);
+
+  --color-footer-surface: var(--theme-footer-surface);
+  --color-footer-foreground: var(--theme-footer-foreground);
+  --color-footer-muted: var(--theme-footer-muted);
+
+  --color-media-frame-border:
+  var(--theme-media-frame-border);
+
+  --color-media-frame-surface:
+  var(--theme-media-frame-surface);
+
+  /* Old Year's Night */
+  --color-oyn-hero-surface: var(--theme-oyn-hero-surface);
+  --color-oyn-foreground: var(--theme-oyn-foreground);
+  --color-oyn-warm: var(--theme-oyn-warm);
+  --color-oyn-muted: var(--theme-oyn-muted);
+  --color-oyn-role: var(--theme-oyn-role);
+  --color-oyn-link: var(--theme-oyn-link);
+  --color-oyn-artist-surface: var(--theme-oyn-artist-surface);
+  --color-oyn-countdown-surface: var(--theme-oyn-countdown-surface);
+  --color-oyn-timeline-accent: var(--theme-oyn-timeline-accent);
+  --color-oyn-hero-badge-foreground: var(--theme-oyn-hero-badge-foreground);
+  --color-oyn-hero-tagline: var(--theme-oyn-hero-tagline);
+
+  --color-oyn-ticket-entry: var(--theme-oyn-ticket-entry);
+  --color-oyn-ticket-entry-ring: var(--theme-oyn-ticket-entry-ring);
+  --color-oyn-ticket-vip: var(--theme-oyn-ticket-vip);
+  --color-oyn-ticket-vip-ring: var(--theme-oyn-ticket-vip-ring);
+  --color-oyn-ticket-bbq: var(--theme-oyn-ticket-bbq);
+  --color-oyn-ticket-bbq-ring: var(--theme-oyn-ticket-bbq-ring);
+  --color-oyn-ticket-crust: var(--theme-oyn-ticket-crust);
+  --color-oyn-ticket-crust-ring: var(--theme-oyn-ticket-crust-ring);
+
+  --color-oyn-venue-surface: var(--theme-oyn-venue-surface);
+  --color-oyn-action-surface: var(--theme-oyn-action-surface);
+  --color-oyn-action-foreground: var(--theme-oyn-action-foreground);
+  --color-oyn-error-surface: var(--theme-oyn-error-surface);
+  --color-oyn-error-border: var(--theme-oyn-error-border);
+  --color-oyn-error: var(--theme-oyn-error);
+
+  /* Fonts */
+  --font-mono: var(--font-family-mono);
+  --font-body: var(--font-family-body);
+  --font-hand: var(--font-family-hand);
+  --font-display: var(--font-family-display);
+  --font-navigation: var(--font-family-navigation);
+
+  /* Radius */
+  --radius-brand: var(--brand-radius);
+
+  /* Shadows */
+  --shadow-brand-sm: var(--brand-shadow-sm);
+  --shadow-brand-md: var(--brand-shadow-md);
+  --shadow-brand-lift: var(--brand-shadow-lift);
+  --shadow-brand-inset: var(--brand-shadow-inset);
+
+  --shadow-oyn-hero: var(--theme-oyn-shadow-hero);
+  --shadow-oyn-card: var(--theme-oyn-shadow-card);
+  --shadow-oyn-lift: var(--theme-oyn-shadow-lift);
+  --shadow-oyn-soft: var(--theme-oyn-shadow-soft);
+  --shadow-oyn-control: var(--theme-oyn-shadow-control);
+  --shadow-oyn-hero-badge: var(--theme-oyn-shadow-hero-badge);
+}
+
+/*
+ * Theme-aware gradients remain regular CSS variables because they are
+ * composed values rather than standalone Tailwind color tokens.
+ */
+:root {
+  --oyn-hero-radial-overlay: var(--theme-oyn-hero-radial-overlay);
+  --oyn-hero-vertical-overlay: var(--theme-oyn-hero-vertical-overlay);
+
+  --oyn-carousel-overlay: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--theme-oyn-hero-surface) 85%, transparent),
+    transparent,
+    color-mix(in srgb, var(--theme-oyn-hero-surface) 10%, transparent)
+  );
+
+  --oyn-lineup-gradient: linear-gradient(
+    150deg,
+    var(--theme-oyn-lineup-start),
+    var(--theme-oyn-lineup-end)
+  );
+
+  --oyn-planner-gradient: linear-gradient(
+    155deg,
+    var(--theme-oyn-planner-start),
+    var(--theme-oyn-planner-end)
+  );
+
+  --oyn-ticket-shine: linear-gradient(
+    160deg,
+    var(--theme-oyn-ticket-shine),
+    transparent 46%
+  );
+
+  --oyn-artist-placeholder:
+    repeating-linear-gradient(
+      135deg,
+      var(--theme-oyn-placeholder-stripe-strong) 0 12px,
+      var(--theme-oyn-placeholder-stripe-soft) 12px 24px
+    ),
+    var(--theme-oyn-placeholder-base);
+
+  --oyn-countdown-glow: var(--theme-oyn-countdown-glow);
+
+  --section-gradient-primary: linear-gradient(
+    180deg,
+    var(--theme-gradient-primary-start) 0%,
+    var(--theme-gradient-primary-end) 100%
+  );
+
+  --section-gradient-primary-reverse: linear-gradient(
+    180deg,
+    var(--theme-gradient-primary-end) 0%,
+    var(--theme-gradient-primary-start) 100%
+  );
+
+  --section-gradient-feature: linear-gradient(
+    180deg,
+    var(--theme-gradient-feature-start) 0%,
+    var(--theme-gradient-feature-mid) 55%,
+    var(--theme-gradient-feature-end) 100%
+  );
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--theme-page);
+  color: var(--theme-foreground);
+  font-family: var(--font-family-body);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}

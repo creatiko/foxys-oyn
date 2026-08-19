@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand colors */
+  --color-ink: #2ED3E4;
+  --color-ink-2: #35D9E9;
+  --color-dusk: #FFD84E;
+
+  --color-sand: #063038;
+  --color-sand-dim: #16454F;
+
+  --color-driftwood: #FFB13C;
+  --color-driftwood-dark: #C72467;
+
+  --color-coral: #FF4E5B;
+  --color-coral-dim: #DE2F3E;
+
+  --color-turquoise: #12C9B4;
+  --color-gold: #FFCC3E;
+  --color-gold-deep: #8F0F26;
+
+  --color-accent-deep: #06453E;
+
+  --color-navbar: rgba(13,31,41,0.75);
+
+  --color-brown: #3A1206;
+  --color-beige: #FFF8E7;
+  --color-gray-dim:rgba(255,248,231,0.14);
+  --color-navbar-button-active-border: rgba(6,48,56,0.25);
+  --color-navbar-button-border: rgba(255, 248, 231, 0.42);
+
+  /* Keep the current fonts */
+  --font-mono: "IBM Plex Mono", monospace;
+  --font-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Caveat", cursive;
+
+  /* Semantic aliases */
+  --font-display: "Lilita One", ui-sans-serif, sans-serif;
+  --font-navigation: "Nunito", ui-sans-serif, sans-serif;
+
+  /* Radius */
+  --radius-brand: 8px;
+
+  /* Shadows */
+  --shadow-brand-sm: 0 2px 6px rgba(0, 0, 0, 0.28);
+  --shadow-brand-md: 0 10px 26px rgba(0, 0, 0, 0.36);
+  --shadow-brand-lift: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --shadow-brand-inset:
+    inset 0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+:root {
+  --ink: #2ED3E4;
+  --ink-2: #35D9E9;
+  --dusk: #FFD84E;
+
+  --sand: #063038;
+  --sand-dim: #16454F;
+
+  --driftwood: #FFB13C;
+  --driftwood-dark: #C72467;
+
+  --coral: #FF4E5B;
+  --coral-dim: #DE2F3E;
+
+  --turquoise: #12C9B4;
+  --gold: #FFCC3E;
+  --gold-deep: #8F0F26;
+
+  --accent-deep: #06453E;
+
+  --navbar: rgba(13,31,41,0.75);
+  --brown: #3A1206;
+  --beige: #FFF8E7;
+  --navbar-button-active-border: rgba(6,48,56,0.25);
+  --navbar-button-border: rgba(255, 248, 231, 0.42);
+  --gray-dim:rgba(255,248,231,0.14);
+
+  --radius: 8px;
+
+  /* Keep the current fonts */
+  --display: "Lilita One", sans-serif;
+  --navigation: "Nunito", sans-serif;
+  --body: "Nunito", sans-serif;
+  --hand: "Caveat", cursive;
+
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.36);
+  --shadow-lift: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --shadow-inset:
+    inset 0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+
+  --gradient-blue: #1ECBDE;
+  --gradient-yellow: #FFD84E;
+  --gradient-coral: #FF4E5B;
+
+  --section-gradient-blue: linear-gradient(
+        180deg,
+        var(--gradient-blue) 0%,
+        var(--gradient-yellow) 100%
+    );
+
+  --section-gradient-yellow: linear-gradient(
+        180deg,
+        var(--gradient-yellow) 0%,
+        var(--gradient-blue) 100%
+    );
+
+  --section-gradient-coral: linear-gradient(
+        180deg,
+        var(--gradient-yellow) 0%,
+        var(--gradient-coral) 55%,
+        var(--gradient-yellow) 100%
+    );
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--ink);
+  color: var(--sand);
+  font-family: var(--body);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
