@@ -135,6 +135,7 @@ const paypalButtonContainer = ref<HTMLElement | null>(null)
 
 const paypalCapturing = ref(false)
 const paymentComplete = ref(false)
+const finalSaleAccepted = ref(false)
 
 const paidOrder =
   ref<PaidOrderResponse['order'] | null>(
@@ -576,6 +577,7 @@ async function createCheckoutOrder(): Promise<void> {
     cartItems.value.length === 0
     || cartValidating.value
     || checkoutCreating.value
+    || !finalSaleAccepted.value
   ) {
     return
   }
@@ -885,6 +887,8 @@ function startNewTransaction(): void {
 
   checkoutCreating.value = false
   paypalCapturing.value = false
+  
+  finalSaleAccepted.value = false
 }
 
 // NEWSLETTER SUBSCRIPTIONS
@@ -1605,33 +1609,106 @@ async function submitNewsletter(): Promise<void> {
           </div>
 
           <!-- Before local order creation -->
-          <button
+          <div
             v-if="!checkoutOrder"
-            type="button"
-            class="mt-5 w-full rounded-lg bg-accent px-5 py-4 font-body font-black text-accent-foreground disabled:cursor-not-allowed disabled:opacity-60"
-            :disabled="
-              cartValidating
-              || checkoutCreating
-              || !validatedCart
-              || Boolean(cartError)
-              || Boolean(deliveryTelephoneError)
-            "
-            @click="createCheckoutOrder"
+            class="mt-5"
           >
-            <template v-if="checkoutCreating">
-              Reserving tickets…
-            </template>
+            <div
+              class="
+                rounded-lg
+                border border-cart-foreground/20
+                bg-overlay-faint
+                px-4 py-4
+              "
+            >
+              <p
+                id="final-sale-policy"
+                class="
+                  font-body text-sm leading-relaxed
+                  text-cart-foreground/80
+                "
+              >
+                <strong
+                  class="
+                    font-black
+                    text-cart-foreground
+                  "
+                >
+                  All ticket sales are final.
+                </strong>
 
-            <template v-else-if="cartValidating">
-              Checking cart…
-            </template>
+                If your travel plans change and you cannot make it
+                to Foxy's, you are responsible for transferring your
+                tickets to a third party.
+              </p>
 
-            <template v-else>
-              Continue to checkout
-            </template>
-          </button>
+              <!-- Final sale acknowledgment -->
+              <label
+                for="final-sale-accepted"
+                class="
+                  mt-4 flex cursor-pointer
+                  items-start gap-3
+                  border-t border-cart-foreground/15
+                  pt-4
+                  font-body
+                "
+              >
+                <input
+                  id="final-sale-accepted"
+                  v-model="finalSaleAccepted"
+                  type="checkbox"
+                  class="
+                    mt-0.5 size-5 shrink-0
+                    cursor-pointer
+                    accent-accent
+                  "
+                  aria-describedby="final-sale-policy"
+                >
 
+                <span
+                  class="
+                    text-sm font-bold
+                    text-cart-foreground
+                  "
+                >
+                  I understand that ticket sales are final.
+                </span>
+              </label>
+            </div>
 
+            <button
+              type="button"
+              class="
+                mt-4 w-full rounded-lg
+                bg-orange-dark px-5 py-4
+                font-body font-black
+                text-accent-foreground
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+              "
+              :disabled="
+                cartValidating
+                || checkoutCreating
+                || !validatedCart
+                || Boolean(cartError)
+                || Boolean(deliveryTelephoneError)
+                || !finalSaleAccepted
+              "
+              @click="createCheckoutOrder"
+            >
+              <template v-if="checkoutCreating">
+                Reserving tickets…
+              </template>
+
+              <template v-else-if="cartValidating">
+                Checking cart…
+              </template>
+
+              <template v-else>
+                Continue to checkout
+              </template>
+            </button>
+          </div>
 
           <!-- Reserved order and PayPal -->
           <div
