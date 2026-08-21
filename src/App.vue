@@ -1393,7 +1393,7 @@ async function submitNewsletter(): Promise<void> {
             fixed inset-y-0 right-0 z-220
             flex h-dvh w-full max-w-md flex-col
             bg-cart-surface py-6 pr-6 pl-8
-            text-cart-foreground shadow-2xl
+            text-sand shadow-2xl
 
             transition-transform duration-300
             ease-[cubic-bezier(.22,.7,.3,1)]
@@ -1479,7 +1479,7 @@ async function submitNewsletter(): Promise<void> {
           <article
             v-for="item in cartItems"
             :key="item.ticketTypeId"
-            class="rounded-lg border border-cart-foreground/20 p-4"
+            class="rounded-lg border border-sand/20 p-4"
           >
             <div class="flex justify-between gap-4">
               <div>
@@ -1487,7 +1487,7 @@ async function submitNewsletter(): Promise<void> {
                   {{ item.name }}
                 </h3>
 
-                <p class="mt-1 text-sm text-cart-foreground/75">
+                <p class="mt-1 text-sm text-sand/75">
                   {{ formatMoney(item.unitPriceCents) }}
                   each
                 </p>
@@ -1538,7 +1538,7 @@ async function submitNewsletter(): Promise<void> {
 
         <div
           v-if="cartItems.length"
-          class="mt-6 border-t border-cart-foreground/20 pt-5"
+          class="mt-6 border-t border-sand/20 pt-5"
         >
           <div class="flex justify-between font-body text-lg font-black">
             <span>Subtotal</span>
@@ -1548,18 +1548,18 @@ async function submitNewsletter(): Promise<void> {
             </span>
           </div>
 
-          <div class="mt-5">
+          <!-- <div class="mt-5">
             <label
               for="delivery-telephone"
-              class="block font-body font-bold text-cart-foreground"
+              class="block font-body font-bold text-sand"
             >
               Mobile number
-              <span class="font-normal text-cart-foreground/60">
+              <span class="font-normal text-sand/60">
                 (optional)
               </span>
             </label>
 
-            <p class="mt-1 font-body text-sm text-cart-foreground/70">
+            <p class="mt-1 font-body text-sm text-sand/70">
               Enter a mobile number if you'd like your
               tickets delivered by SMS as well as email.
             </p>
@@ -1570,7 +1570,7 @@ async function submitNewsletter(): Promise<void> {
               type="tel"
               autocomplete="tel"
               placeholder="+1 284 555 1234"
-              class="mt-3 w-full rounded-lg border border-cart-foreground/25 bg-overlay-faint px-4 py-3 font-body text-cart-foreground placeholder:text-cart-foreground/40"
+              class="mt-3 w-full rounded-lg border border-sand/25 bg-overlay-faint px-4 py-3 font-body text-sand placeholder:text-sand/40"
             >
             <p
               v-if="deliveryTelephoneError"
@@ -1578,6 +1578,29 @@ async function submitNewsletter(): Promise<void> {
               role="alert"
             >
               {{ deliveryTelephoneError }}
+            </p>
+          </div> -->
+
+          <div
+            class="
+              mt-5 rounded-lg
+              border border-sand/20
+              bg-overlay-faint
+              px-4 py-3
+            "
+          >
+            <p
+              class="
+                font-body text-sm leading-relaxed
+                text-sand/80
+              "
+            >
+              <strong class="font-black text-red-700">
+                All ticket sales are final.
+              </strong>
+              If your travel plans change and you cannot make it
+              to Foxy's, you are responsible for transferring your
+              tickets to a third party.
             </p>
           </div>
 
@@ -1622,7 +1645,7 @@ async function submitNewsletter(): Promise<void> {
                 Your tickets are temporarily reserved.
               </p>
 
-              <p class="mt-1 font-body text-sm text-cart-foreground/80">
+              <p class="mt-1 font-body text-sm text-sand/80">
                 Complete payment before
                 {{
                   new Intl.DateTimeFormat(
@@ -1658,7 +1681,7 @@ async function submitNewsletter(): Promise<void> {
         <!-- Empty cart message -->
         <p
           v-else
-          class="mt-8 text-cart-foreground/75"
+          class="mt-8 text-sand/75"
         >
           Your cart is empty.
         </p>
