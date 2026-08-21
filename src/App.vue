@@ -1013,7 +1013,7 @@ async function submitNewsletter(): Promise<void> {
 </script>
 
 <template>
-  <div class="min-h-screen bg-page"  :data-theme="siteTheme">
+  <div class="min-h-screen bg-(--palette-oyn-purple-deep) "  :data-theme="siteTheme">
     <!-- Header -->
       <header
     class="fixed inset-x-0 top-0 z-50 overflow-visible border-b border-navbar-divider bg-navbar backdrop-blur"
@@ -1358,8 +1358,6 @@ async function submitNewsletter(): Promise<void> {
     </header>
 
     <main>
-      <!-- Home hero -->
-      <NormalHero />
       
       <component
         :is="separatorComponent"
@@ -1377,7 +1375,7 @@ async function submitNewsletter(): Promise<void> {
 
       <!-- Old Year's Night content -->
       <OldYearsNight
-      class="-mt-25"
+      class="mt-10"
         @buy-ticket="addTicketToCart"
       />
 
