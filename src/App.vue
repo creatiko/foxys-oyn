@@ -1574,7 +1574,7 @@ async function submitNewsletter(): Promise<void> {
             >
             <p
               v-if="deliveryTelephoneError"
-              class="mt-2 font-body text-sm font-bold text-danger"
+              class="mt-2 font-body text-sm font-bold text-coral-bright"
               role="alert"
             >
               {{ deliveryTelephoneError }}
