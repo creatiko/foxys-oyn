@@ -6,7 +6,6 @@ import {
   watch,
 } from 'vue'
 
-import NormalHero from '@/components/NormalHero.vue'
 import OldYearsNight from '@/components/OldYearsNight.vue'
 import FoxysLogo from '@/components/FoxysLogo.vue'
 import foxysLogoPng from './assets/foxys-logo.png'
