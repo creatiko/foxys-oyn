@@ -1,3 +1,5 @@
+@import url('https://fonts.bunny.net/css?family=oswald:400,500,600,700|black-han-sans:400|gentium-book-plus:400,400i,700|caveat:700|ibm-plex-mono:700&display=swap');
+
 @import "tailwindcss";
 
 /*
@@ -7,6 +9,10 @@
  * Theme variables below decide how those colors are used.
  */
 :root {
+  /* Background */
+
+  --sand-wash: rgba(248, 240, 214, 0.45);
+
   /* Palette */
   --palette-aqua: #2ed3e4;
   --palette-aqua-light: #35d9e9;
@@ -16,7 +22,7 @@
   --palette-gold: #ffcc3e;
   --palette-orange: #ffb13c;
 
-  --palette-coral: #ff4e5b;
+  --palette-coral: #C78E7F;
   --palette-coral-dark: #de2f3e;
   --palette-magenta: #c72467;
   --palette-red-deep: #8f0f26;
@@ -44,7 +50,27 @@
   --palette-success-border: #4ade80;
   --palette-danger: #fca5a5;
 
+    /* Sand V1 palette */
+  --palette-sand-page: #ede4d2;
+
+  --palette-sand-aqua: #6fb4ba;
+  --palette-sand-aqua-light: #8fc9cc;
+
+  --palette-sand-dusk: #dfc894;
+  --palette-sand-gold: #c9a85e;
+
+  --palette-sand-coral: #c78e7f;
+  --palette-sand-coral-dark: #b07a68;
+
+  --palette-sand-driftwood-dark: #b5602e;
+
+  --palette-sand-teal-deep: #0e4a50;
+
+  --palette-sand-ink: #1e2a2e;
+  --palette-sand-muted: #3a4a4c;
+
   /* Old Year's Night V1 palette */
+  --palette-oyn-purple-bg: #3B3352; /*#3E3554*/
   --palette-oyn-teal-start: #0b6a76;
   --palette-oyn-teal: #0a756b;
   --palette-oyn-teal-ring: #39c4ac;
@@ -63,11 +89,11 @@
   --palette-oyn-hero-salmon: #ff8a73;
 
   /* Typography */
-  --font-family-mono: "IBM Plex Mono", monospace;
-  --font-family-body: "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-family-hand: "Caveat", cursive;
-  --font-family-display: "Lilita One", ui-sans-serif, sans-serif;
-  --font-family-navigation: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: 'IBM Plex Mono', monospace;
+  --font-family-body: 'Gentium Book Plus', Georgia, serif;
+  --font-family-hand: 'Caveat', cursive;
+  --font-family-display: 'Black Han Sans', sans-serif;
+  --font-family-navigation: "Oswald", system-ui, sans-serif;
 
   /* Shape */
   --brand-radius: 8px;
@@ -200,6 +226,7 @@
   --theme-oyn-timeline-accent: var(--palette-coral);
   --theme-oyn-hero-badge-foreground: var(--palette-oyn-hero-badge-teal);
   --theme-oyn-hero-tagline: var(--palette-oyn-hero-salmon);
+  --theme-oyn-page-bg: var(--palette-oyn-purple-bg);
 
   --theme-oyn-hero-radial-overlay: radial-gradient(
     120% 90% at 50% 40%,
@@ -264,6 +291,241 @@
 }
 
 /*
+ * Foxy's Sand V1
+ *
+ * Warm sand / muted Caribbean palette.
+ * Uses the same semantic token contract as Tropical V1,
+ * so components do not need theme-specific class names.
+ */
+[data-theme="sand-v1"] {
+
+  --sand-surface: #f8f0d6;
+
+  /* Page and surfaces */
+  --theme-page: var(--palette-sand-page);
+  --theme-page-alt: var(--palette-cream-warm);
+  --theme-surface: var(--palette-cream);
+  --theme-surface-alt: var(--palette-sand-aqua);
+  --theme-surface-strong: var(--palette-sand-teal-deep);
+
+  /* Typography */
+  --theme-heading: var(--palette-sand-ink);
+  --theme-foreground: var(--palette-sand-ink);
+  --theme-muted: var(--palette-sand-muted);
+  --theme-inverse: var(--palette-cream);
+
+  /* Brand actions */
+  --theme-primary: var(--palette-sand-aqua);
+  --theme-primary-hover: var(--palette-sand-aqua-light);
+
+  --theme-secondary: var(--palette-sand-dusk);
+  --theme-secondary-hover: var(--palette-sand-gold);
+
+  --theme-action: var(--palette-sand-coral);
+  --theme-action-hover: var(--palette-sand-coral-dark);
+
+  --theme-accent: var(--palette-sand-gold);
+  --theme-accent-hover: var(--palette-sand-dusk);
+  --theme-accent-alt: var(--palette-sand-driftwood-dark);
+  --theme-highlight: var(--palette-sand-aqua);
+  --theme-accent-deep: var(--palette-sand-teal-deep);
+
+  /* Navigation */
+  --theme-navbar: rgba(14, 74, 80, 0.82);
+  --theme-navbar-foreground: var(--palette-cream);
+  --theme-navbar-border: rgba(255, 248, 231, 0.38);
+  --theme-navbar-divider: rgba(30, 42, 46, 0.18);
+  --theme-navbar-active: var(--palette-sand-gold);
+  --theme-navbar-active-border: var(--palette-sand-gold);
+  --theme-navbar-active-foreground: var(--palette-brown);
+  --theme-navbar-mobile-surface: var(--palette-sand-aqua-light);
+  --theme-navbar-icon: var(--palette-sand-ink);
+
+  /* Action contrast */
+  --theme-accent-foreground: var(--palette-sand-ink);
+
+  /* Borders and translucent surfaces */
+  --theme-border: rgba(30, 42, 46, 0.18);
+  --theme-border-inverse: rgba(255, 248, 231, 0.38);
+  --theme-surface-muted: rgba(255, 248, 231, 0.22);
+
+  /* Overlays and form surfaces */
+  --theme-overlay: rgba(30, 42, 46, 0.58);
+  --theme-overlay-soft: rgba(30, 42, 46, 0.22);
+  --theme-overlay-faint: rgba(30, 42, 46, 0.10);
+  --theme-input-surface: var(--palette-cream);
+  --theme-input-foreground: var(--palette-sand-ink);
+
+  /* Ticket cart */
+  --theme-cart-surface: var(--palette-sand-aqua);
+  --theme-cart-foreground: var(--palette-sand-ink);
+  --theme-success: var(--palette-success);
+  --theme-success-border: var(--palette-success-border);
+  --theme-danger: var(--palette-danger);
+  --theme-warning: var(--palette-sand-gold);
+
+  /* Story card accents */
+  --theme-family-founder: var(--palette-sand-coral);
+  --theme-family-cofounder: var(--palette-sand-aqua);
+  --theme-family-nextgen: var(--palette-sand-gold);
+
+  /* Global media frame */
+  --theme-media-frame-border: var(--palette-sand-gold);
+  --theme-media-frame-surface: var(--palette-sand-driftwood-dark);
+
+  /* Footer */
+  --theme-footer-surface: var(--palette-sand-teal-deep);
+  --theme-footer-foreground: var(--palette-cream);
+  --theme-footer-muted: var(--palette-sand-warm);
+
+  /* Burgee presentation */
+  --theme-burgee-gradient-start: var(--palette-sand-dusk);
+  --theme-burgee-gradient-mid: var(--palette-sand-driftwood-dark);
+  --theme-burgee-gradient-end: var(--palette-sand-dusk);
+  --theme-burgee-label: var(--palette-sand-ink);
+  --theme-burgee-title: var(--palette-sand-ink);
+  --theme-burgee-meta: rgba(30, 42, 46, 0.85);
+  --theme-burgee-muted: rgba(30, 42, 46, 0.72);
+  --theme-burgee-highlight: rgba(255, 255, 255, 0.16);
+  --theme-burgee-edge: rgba(107, 58, 31, 0.28);
+  --theme-burgee-shadow: rgba(0, 0, 0, 0.30);
+  --theme-burgee-hover-shadow: rgba(14, 74, 80, 0.22);
+
+  /* Old Year's Night navigation sparkle */
+  --theme-oyn-sparkle: var(--palette-sand-gold);
+  --theme-oyn-glow-transparent: rgba(201, 168, 94, 0);
+  --theme-oyn-glow-soft: rgba(201, 168, 94, 0.40);
+  --theme-oyn-glow-medium: rgba(201, 168, 94, 0.45);
+  --theme-oyn-glow-strong: rgba(201, 168, 94, 0.95);
+
+  /*
+   * Old Year's Night
+   *
+   * OYN keeps its event-specific identity even when
+   * the surrounding site uses Sand V1.
+   */
+  --theme-oyn-hero-surface: var(--palette-green-dark);
+  --theme-oyn-foreground: var(--palette-cream);
+  --theme-oyn-warm: var(--palette-oyn-warm);
+  --theme-oyn-muted: var(--palette-oyn-muted);
+  --theme-oyn-role: var(--palette-oyn-role);
+  --theme-oyn-link: var(--palette-turquoise);
+  --theme-oyn-artist-surface: var(--palette-magenta);
+  --theme-oyn-countdown-surface: var(--palette-magenta);
+  --theme-oyn-timeline-accent: var(--palette-coral);
+  --theme-oyn-hero-badge-foreground:
+    var(--palette-oyn-hero-badge-teal);
+  --theme-oyn-hero-tagline:
+    var(--palette-oyn-hero-salmon); 
+  --theme-oyn-page-bg:
+    var(--palette-oyn-purple-bg);
+
+  --theme-oyn-hero-radial-overlay: radial-gradient(
+    120% 90% at 50% 40%,
+    rgba(8, 20, 24, 0.04) 0%,
+    rgba(8, 20, 24, 0.28) 65%,
+    rgba(8, 20, 24, 0.52) 100%
+  );
+
+  --theme-oyn-hero-vertical-overlay: linear-gradient(
+    180deg,
+    rgba(11, 130, 146, 0.30) 0%,
+    rgba(11, 20, 30, 0.08) 40%,
+    rgba(8, 20, 24, 0.52) 100%
+  );
+
+  --theme-oyn-hero-title-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.85),
+    0 6px 34px rgba(0, 0, 0, 0.70);
+
+  --theme-oyn-hero-tagline-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.95),
+    0 0 26px rgba(0, 0, 0, 0.75);
+
+  --theme-oyn-shadow-hero-badge:
+    0 4px 14px rgba(0, 0, 0, 0.35);
+
+  --theme-oyn-ticket-entry: var(--palette-oyn-teal);
+  --theme-oyn-ticket-entry-ring: var(--palette-oyn-teal-ring);
+
+  --theme-oyn-ticket-vip: var(--palette-magenta);
+  --theme-oyn-ticket-vip-ring: var(--palette-oyn-magenta-ring);
+
+  --theme-oyn-ticket-bbq: var(--palette-oyn-rust);
+  --theme-oyn-ticket-bbq-ring: var(--palette-oyn-rust-ring);
+
+  --theme-oyn-ticket-crust: var(--palette-oyn-purple);
+  --theme-oyn-ticket-crust-ring: var(--palette-oyn-purple-ring);
+
+  --theme-oyn-venue-surface: var(--palette-oyn-teal-venue);
+  --theme-oyn-action-surface: var(--palette-cream);
+  --theme-oyn-action-foreground: var(--palette-brown);
+
+  --theme-oyn-error-surface: rgba(255, 255, 255, 0.40);
+  --theme-oyn-error-border: rgba(185, 28, 28, 0.25);
+  --theme-oyn-error: var(--palette-oyn-error);
+
+  --theme-oyn-shadow-hero:
+    0 18px 40px rgba(0, 0, 0, 0.38);
+
+  --theme-oyn-shadow-card:
+    0 10px 26px rgba(30, 42, 46, 0.16);
+
+  --theme-oyn-shadow-lift:
+    0 18px 40px rgba(30, 42, 46, 0.20);
+
+  --theme-oyn-shadow-soft:
+    0 2px 6px rgba(30, 42, 46, 0.14);
+
+  --theme-oyn-shadow-control:
+    0 10px 15px rgba(0, 0, 0, 0.10);
+
+  --theme-oyn-lineup-start: var(--palette-oyn-teal-start);
+  --theme-oyn-lineup-end: var(--palette-oyn-teal);
+
+  --theme-oyn-planner-start: var(--palette-oyn-purple);
+  --theme-oyn-planner-end: var(--palette-oyn-purple-deep);
+
+  --theme-oyn-ticket-shine:
+    rgba(255, 255, 255, 0.16);
+
+  --theme-oyn-placeholder-stripe-strong:
+    rgba(255, 248, 231, 0.08);
+
+  --theme-oyn-placeholder-stripe-soft:
+    rgba(255, 248, 231, 0.03);
+
+  --theme-oyn-placeholder-base:
+    var(--palette-green-deep);
+
+  --theme-oyn-countdown-glow:
+    0 0 12px rgba(255, 195, 0, 0.35);
+
+  /* Section gradients */
+  --theme-gradient-primary-start: var(--palette-sand-page);
+  --theme-gradient-primary-end: var(--palette-cream-warm);
+
+  --theme-gradient-feature-start: var(--palette-cream-warm);
+  --theme-gradient-feature-mid: var(--palette-sand-dusk);
+  --theme-gradient-feature-end: var(--palette-sand-page);
+
+  /* Softer Sand V1 shadows */
+  --brand-shadow-sm:
+    0 2px 6px rgba(30, 42, 46, 0.14);
+
+  --brand-shadow-md:
+    0 10px 26px rgba(30, 42, 46, 0.16);
+
+  --brand-shadow-lift:
+    0 22px 44px rgba(4, 10, 14, 0.30),
+    0 8px 18px rgba(4, 10, 14, 0.20);
+
+  --brand-shadow-inset:
+    inset 0 1px 3px rgba(30, 42, 46, 0.10),
+    inset 0 0 0 1px rgba(30, 42, 46, 0.07);
+}
+
+/*
  * Semantic Tailwind utilities.
  *
  * Components use these names and never need to know which theme is active.
@@ -289,6 +551,11 @@
   --color-foreground: var(--theme-foreground);
   --color-muted: var(--theme-muted);
   --color-inverse: var(--theme-inverse);
+
+  --color-cream: var(--palette-cream);
+  --color-coral: var(--palette-coral);
+  --color-turquoise: var(--palette-turquoise);
+  --color-coral-bright: var(--palette-coral-bright);
 
   --color-primary: var(--theme-primary);
   --color-primary-hover: var(--theme-primary-hover);
@@ -358,6 +625,7 @@
   --color-oyn-timeline-accent: var(--theme-oyn-timeline-accent);
   --color-oyn-hero-badge-foreground: var(--theme-oyn-hero-badge-foreground);
   --color-oyn-hero-tagline: var(--theme-oyn-hero-tagline);
+  --color-oyn-page-bg: var(--palette-oyn-purple-bg);
 
   --color-oyn-ticket-entry: var(--theme-oyn-ticket-entry);
   --color-oyn-ticket-entry-ring: var(--theme-oyn-ticket-entry-ring);
@@ -464,6 +732,7 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 20px;
 }
 
 body {
@@ -486,3 +755,111 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* gives the images/videos box shadow and offsets on hover moving up */
+.media-lift {
+  box-shadow:
+    0 14px 22px rgba(20, 16, 8, 0.28),
+    0 3px 6px rgba(20, 16, 8, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .media-lift:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+      0 22px 44px rgba(4, 10, 14, 0.40),
+      0 8px 18px rgba(4, 10, 14, 0.28);
+  }
+}
+
+/*
+ * Foxy's Sand V1
+ *
+ * Warm sand / muted Caribbean palette.
+ * Uses the same semantic token contract as Tropical V1,
+ * so components do not need theme-specific class names.
+ */
+.sand-divider {
+  position: relative;
+
+  width: 100%;
+  aspect-ratio: 5.8 / 1;
+
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      180deg,
+      var(--sd-a) 0 50%,
+      var(--sd-b) 50% 100%
+    );
+
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+
+  margin-top: -68px;
+  margin-bottom: -68px;
+}
+
+.sand-divider::after {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      var(--sand-wash),
+      var(--sand-wash)
+    ),
+    var(--sand-bg);
+
+  background-size:
+    100% 100%,
+    520px 520px;
+
+  background-repeat:
+    no-repeat,
+    repeat;
+
+  background-attachment:
+    scroll,
+    fixed;
+
+  background-position:
+    0 0,
+    center top;
+
+  -webkit-mask-image: var(--sand-mask);
+  mask-image: var(--sand-mask);
+
+  -webkit-mask-size: 300% 100%;
+  mask-size: 300% 100%;
+
+  -webkit-mask-position: var(--sd-x, 0%) 0;
+  mask-position: var(--sd-x, 0%) 0;
+
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+@media (max-width: 640px) {
+  .sand-divider {
+    margin-top: -36px;
+    margin-bottom: -36px;
+  }
+}
+/*
+ * END Foxy's Sand V1
+ *
+ */

@@ -2,140 +2,71 @@
 import { 
   computed,
   nextTick,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
   ref,
   watch,
 } from 'vue'
 
 import NormalHero from '@/components/NormalHero.vue'
-import SectionWhyHere from '@/components/SectionWhyHere.vue'
-import SectionAfterDark from '@/components/SectionAfterDark.vue'
-import SectionTheWalls from '@/components/SectionTheWalls.vue'
-import SectionFoxyCalypso from '@/components/SectionFoxyCalypso.vue'
-import SectionVisitUs from '@/components/SectionVisitUs.vue'
-import GoogleReviews from '@/components/GoogleReviews.vue'
-import PostcardMaker from '@/components/PostcardMaker.vue'
 import OldYearsNight from '@/components/OldYearsNight.vue'
-import OldYearsNightHero from '@/components/OldYearsNightHero.vue'
-import foxysLogo from './assets/foxys-logo.png'
-import foxyTailBlack from './assets/logos/foxy-tail-black.svg'
+import FoxysLogo from '@/components/FoxysLogo.vue'
+import foxysLogoPng from './assets/foxys-logo.png'
+import SandSeparator from '@/components/separators/SandSeparator.vue'
+import WaveSeparator from '@/components/separators/WaveSeparator.vue'
+
+type SiteTheme = 'sand-v1' | 'tropical-v1'
+
+const siteTheme = ref<SiteTheme>('sand-v1')
+
+const separatorComponent = computed(() =>
+  siteTheme.value === 'sand-v1'
+    ? SandSeparator
+    : WaveSeparator,
+)
 
 import { API_URL } from '@/config/api'
-
-const travelAbortController = new AbortController()
-
-
-const familyMembers: FamilyMember[] = [
-  {
-    role: 'Founder',
-    name: 'Philicianno "Foxy" Callwood',
-    description:
-      'Quick with a song, a joke, or a story, Foxy has been welcoming visitors to "his island" for five decades. He\'s received numerous awards for his contributions to heritage and tourism in the British Virgin Islands, including an MBE (Member of the British Empire) from H.M. Queen Elizabeth II.',
-    borderClass: 'border-t-family-founder',
-  },
-  {
-    role: 'Co-founder',
-    name: 'Tessa Callwood',
-    description:
-      'Tessa met a young Foxy Callwood in 1972, crewing together across the Atlantic aboard the schooner Nordyls. When they reached Jost Van Dyke, Foxy invited her ashore, and the two became partners in business and in life. "That," Tessa says, "is how I started my life enmeshed in the web of creation and drama that was to be the hallmarks of the Foxy\'s brand" — first as the beach bar\'s chief cook, then as wife and mother, all while dreaming up the parties and events that became a Foxy\'s hallmark.',
-    borderClass: 'border-t-family-cofounder',
-  },
-  {
-    role: 'Second generation',
-    name: 'Justine Callwood',
-    description:
-      "The first-born child of Foxy and Tessa, and a sixth-generation Jost Van Dyke islander, Justine was quite literally raised in the bar. A graduate of Lehigh University with a degree in Business Administration and English, she's gone on to launch other bars and restaurants in the US and BVI — including our sister location, Foxy's Taboo, along with Barefoot Buddha and Jumbie's.",
-    borderClass: 'border-t-family-nextgen',
-  },
-]
 
 const navigation: NavigationItem[] = [
   {
     name: 'Home',
-    tab: 'home',
+    key: 'home',
+    href: 'https://foxysbar.com/',
   },
   {
     name: "Old Year's Night",
-    tab: 'oyn',
+    key: 'oyn',
+    href: '#old-years-night-hero',
   },
   {
-    name: 'Eat & Drink',
-    tab: 'menu',
-  },
-  {
-    name: 'Events',
-    tab: 'events',
+    name: 'about',
+    key: 'about',
+    href: 'https://foxysbar.com/about-us/',
   },
   {
     name: 'Shop',
-    tab: 'shop',
+    key: 'shop',
+    href: 'https://shopfoxysbvi.com/',
   },
   {
-    name: 'Our Story',
-    tab: 'story',
+    name: 'Menus',
+    key: 'menu',
+    href: 'https://foxysbar.com/menus/',
   },
   {
-    name: 'Plan Your Trip',
-    tab: 'plan',
+    name: 'News',
+    key: 'news',
+    href: 'https://foxysbar.com/foxys-blog/',
+  },
+  {
+    name: 'Events',
+    key: 'events',
+    href: 'https://foxysbar.com/events/',
+  },
+  {
+    name: "Foxy's Taboo",
+    key: 'taboo',
+    href: 'https://foxysbar.com/foxys-taboo/',
   },
 ]
-const activeTab = ref<SiteTab>('home')
-
-const tabFromHash: Record<string, SiteTab> = {
-  home: 'home',
-
-  menu: 'menu',
-
-  oyn: 'oyn',
-  nye: 'oyn',
-  'old-years-night': 'oyn',
-  reserve: 'oyn',
-
-  plan: 'plan',
-  journey: 'plan',
-  visit: 'plan',
-
-  story: 'story',
-  about: 'story',
-  why: 'story',
-
-  shop: 'shop',
-  foxhole: 'shop',
-
-  events: 'events',
-  faq: 'events',
-  newsletter: 'events',
-  'private-events': 'events',
-  contact: 'events',
-}
-
-const mobileMenuOpen = ref<boolean>(false)
-
-const visibleFamilyCards = ref<Set<number>>(new Set())
-
-const visitSection = ref<HTMLElement | null>(null)
-const visitVisible = ref(false)
-const tabooSection = ref<HTMLElement | null>(null)
-const tabooVisible = ref(false)
-const menuSection = ref<HTMLElement | null>(null)
-const menuVisible = ref(false)
-const afterDarkSection = ref<HTMLElement | null>(null)
-const afterDarkVisible = ref(false)
-const journeySection = ref<HTMLElement | null>(null)
-const journeyVisible = ref(false)
-const journeyTrack = ref<HTMLElement | null>(null)
-const arrivalSection = ref<HTMLElement | null>(null)
-const arrivalVisible = ref(false)
-const boatArrived = ref(false)
-
-const crossingConditions = reactive({
-  temperature: '—',
-  wind: '—',
-  waveHeight: '—',
-  note: 'Loading live conditions…',
-})
 
 const checkoutCreating = ref(false)
 const checkoutOrder = ref<CheckoutOrder | null>(null)
@@ -198,6 +129,8 @@ const deliveryTelephoneError = computed(() => {
   return ''
 })
 
+const mobileMenuOpen = ref(false)
+
 const paypalButtonContainer = ref<HTMLElement | null>(null)
 
 const paypalCapturing = ref(false)
@@ -209,23 +142,6 @@ const paidOrder =
   )
 
 let cartValidationRequestId = 0
-
-let familyObserver: IntersectionObserver | null = null
-
-let menuObserver: IntersectionObserver | null = null
-
-let travelObserver: IntersectionObserver | null = null
-
-let boatObserver: IntersectionObserver | null = null
-
-type SiteTab =
-  | 'home'
-  | 'oyn'
-  | 'menu'
-  | 'events'
-  | 'story'
-  | 'shop'
-  | 'plan'
 
 type TicketKey =
   | 'entry'
@@ -393,32 +309,39 @@ type CreateOrderResponse = {
   order: CheckoutOrder
 }
 
+type NavigationKey =
+  | 'home'
+  | 'oyn'
+  | 'about'
+  | 'shop'
+  | 'menu'
+  | 'news'
+  | 'events'
+  | 'taboo'
+
 interface NavigationItem {
   name: string
-  tab: SiteTab
+  key: NavigationKey
+  href: string
 }
 
-interface FamilyMember {
-  role: string
-  name: string
-  description: string
-  borderClass: string
-}
-
-function showTab(
-  tab: SiteTab,
-  updateHash = true,
+function handleNavigation(
+  item: NavigationItem,
+  event: MouseEvent,
 ): void {
-  activeTab.value = tab
   mobileMenuOpen.value = false
 
-  if (updateHash) {
-    window.history.replaceState(
-      null,
-      '',
-      `#${tab}`,
-    )
+  if (item.key !== 'oyn') {
+    return
   }
+
+  event.preventDefault()
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 
   /*
    * Change content immediately and return to the top.
@@ -430,102 +353,6 @@ function showTab(
       behavior: 'auto',
     })
   })
-}
-
-function loadTabFromHash(): void {
-  const hash = window.location.hash
-    .replace(/^#/, '')
-    .trim()
-
-  const matchingTab = tabFromHash[hash]
-
-  if (matchingTab) {
-    showTab(matchingTab, false)
-  }
-}
-
-async function loadCrossingConditions(): Promise<void> {
-  try {
-    const weatherUrl =
-      'https://api.open-meteo.com/v1/forecast' +
-      '?latitude=18.4446' +
-      '&longitude=-64.7486' +
-      '&current=temperature_2m,wind_speed_10m' +
-      '&temperature_unit=fahrenheit' +
-      '&wind_speed_unit=mph' +
-      '&timezone=America%2FPuerto_Rico'
-
-    const marineUrl =
-      'https://marine-api.open-meteo.com/v1/marine' +
-      '?latitude=18.4446' +
-      '&longitude=-64.7486' +
-      '&current=wave_height' +
-      '&timezone=America%2FPuerto_Rico'
-
-    const [weatherResponse, marineResponse] = await Promise.all([
-      fetch(weatherUrl, {
-        signal: travelAbortController.signal,
-      }),
-      fetch(marineUrl, {
-        signal: travelAbortController.signal,
-      }),
-    ])
-
-    if (!weatherResponse.ok || !marineResponse.ok) {
-      throw new Error('Conditions request failed.')
-    }
-
-    const weatherData = await weatherResponse.json()
-    const marineData = await marineResponse.json()
-
-    const temperature = weatherData?.current?.temperature_2m
-    const wind = weatherData?.current?.wind_speed_10m
-    const waveMeters = marineData?.current?.wave_height
-
-    if (temperature != null) {
-      crossingConditions.temperature =
-        `${Math.round(Number(temperature))}°F`
-    }
-
-    if (wind != null) {
-      crossingConditions.wind =
-        `${Math.round(Number(wind))} mph`
-    }
-
-    if (waveMeters != null) {
-      const waveFeet = Number(waveMeters) * 3.281
-
-      crossingConditions.waveHeight =
-        `${waveFeet.toFixed(1)} ft`
-
-      if (waveFeet < 3) {
-        crossingConditions.note =
-          'Looks like a calm crossing — always confirm with your captain or ferry operator.'
-      } else if (waveFeet < 5) {
-        crossingConditions.note =
-          'Could be a little bumpy — check with your captain or ferry operator before departing.'
-      } else {
-        crossingConditions.note =
-          'Choppier than usual — confirm with your captain or ferry operator before you cross.'
-      }
-    } else {
-      crossingConditions.note =
-        'Live wave data is unavailable right now — check with your captain or ferry operator.'
-    }
-  } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === 'AbortError'
-    ) {
-      return
-    }
-
-    console.error('Conditions fetch error:', error)
-
-    crossingConditions.note =
-      'Could not load live conditions — check a marine forecast before you cross.'
-  }
-}
 
 function addTicketToCart(
   ticket: TicketTier,
@@ -1060,244 +887,104 @@ function startNewTransaction(): void {
   paypalCapturing.value = false
 }
 
-onMounted(() => {
-  loadTabFromHash()
-  // void loadBurgees()
+// NEWSLETTER SUBSCRIPTIONS
+const newsletterWebsite = ref('')
+const newsletterEmail = ref('')
+const newsletterSubmitting = ref(false)
+const newsletterMessage = ref('')
+const newsletterStatus = ref<
+  'idle' |
+  'success' |
+  'already' |
+  'error'
+>('idle')
 
-  window.addEventListener(
-    'hashchange',
-    loadTabFromHash,
-  )
-})
 
-onBeforeUnmount(() => {
-  window.removeEventListener(
-    'hashchange',
-    loadTabFromHash,
-  )
-})
-
-onMounted(async () => {
-  await nextTick()
-
-  const reducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
-
-  if (reducedMotion) {
-    visibleFamilyCards.value = new Set(
-      familyMembers.map((_, index) => index),
-    )
-
+async function submitNewsletter(): Promise<void> {
+  if (newsletterSubmitting.value) {
     return
   }
 
-  familyObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) {
-          return
-        }
+  newsletterSubmitting.value = true
+  newsletterMessage.value = ''
+  newsletterStatus.value = 'idle'
 
-        const card = entry.target as HTMLElement
-        const index = Number(card.dataset.familyIndex)
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/subscribers`,
+      {
+        method: 'POST',
 
-        visibleFamilyCards.value = new Set([
-          ...visibleFamilyCards.value,
-          index,
-        ])
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
 
-        familyObserver?.unobserve(card)
-      })
-    },
-    {
-      threshold: 0.2,
-    },
-  )
+        body: JSON.stringify({
+          email: newsletterEmail.value,
+          website: newsletterWebsite.value,
+        }),
+      },
+    )
 
-  document
-    .querySelectorAll<HTMLElement>('[data-family-card]')
-    .forEach((card) => {
-      familyObserver?.observe(card)
+    const data = await response.json()
+
+    console.log('Subscriber response:', {
+      status: response.status,
+      ok: response.ok,
+      data,
     })
-})
 
-onBeforeUnmount(() => {
-  familyObserver?.disconnect()
-})
+    if (response.status === 429) {
+      newsletterStatus.value = 'error'
 
-onMounted(() => {
-  const reducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
+      newsletterMessage.value =
+        'Too many attempts. Please try again later.'
 
-  if (reducedMotion) {
-    menuVisible.value = true
-    return
-  }
-
-  menuObserver = new IntersectionObserver(
-    ([entry]) => {
-      if (!entry?.isIntersecting) {
-        return
-      }
-
-      menuVisible.value = true
-      menuObserver?.disconnect()
-    },
-    {
-      threshold: 0.15,
-    },
-  )
-
-  if (menuSection.value) {
-    menuObserver.observe(menuSection.value)
-  }
-})
-
-onBeforeUnmount(() => {
-  menuObserver?.disconnect()
-})
-
-onMounted(() => {
-  const reducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
-
-  if (reducedMotion) {
-    journeyVisible.value = true
-    arrivalVisible.value = true
-    afterDarkVisible.value = true
-    boatArrived.value = true
-  } else {
-    travelObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            return
-          }
-
-          if (entry.target === journeySection.value) {
-            journeyVisible.value = true
-          }
-
-          if (entry.target === arrivalSection.value) {
-            arrivalVisible.value = true
-          }
-
-          if (entry.target === afterDarkSection.value) {
-            afterDarkVisible.value = true
-          }
-
-          travelObserver?.unobserve(entry.target)
-        })
-      },
-      {
-        threshold: 0.15,
-      },
-    )
-
-    if (journeySection.value) {
-      travelObserver.observe(journeySection.value)
+      return
     }
 
-    if (afterDarkSection.value) {
-      travelObserver.observe(afterDarkSection.value)
+    if (!response.ok) {
+      newsletterStatus.value = 'error'
+
+      newsletterMessage.value =
+        data?.errors?.email?.[0]
+        ?? 'We couldn’t subscribe that email.'
+
+      return
     }
 
-    if (arrivalSection.value) {
-      travelObserver.observe(arrivalSection.value)
+    if (data.status === 'already_subscribed') {
+      newsletterStatus.value = 'already'
+
+      newsletterMessage.value =
+        'You’re already subscribed.'
+
+      return
     }
 
-    boatObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) {
-          return
-        }
+    newsletterStatus.value = 'success'
 
-        boatArrived.value = true
-        boatObserver?.disconnect()
-      },
-      {
-        threshold: 0.5,
-      },
-    )
+    newsletterMessage.value =
+      'Thanks — you’re subscribed.'
 
-    if (journeyTrack.value) {
-      boatObserver.observe(journeyTrack.value)
-    }
+    newsletterEmail.value = ''
   }
+  catch {
+    newsletterStatus.value = 'error'
 
-  void loadCrossingConditions()
-})
-
-onBeforeUnmount(() => {
-  travelObserver?.disconnect()
-  boatObserver?.disconnect()
-})
-
-let locationObserver: IntersectionObserver | null = null
-
-onMounted(() => {
-  const reducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
-
-  // Always show the sections when animation is unavailable or disabled
-  if (
-    reducedMotion ||
-    !('IntersectionObserver' in window)
-  ) {
-    visitVisible.value = true
-    tabooVisible.value = true
-    return
+    newsletterMessage.value =
+      'We couldn’t subscribe you right now. Please try again.'
   }
-
-  locationObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) {
-          return
-        }
-
-        if (entry.target === visitSection.value) {
-          visitVisible.value = true
-        }
-
-        if (entry.target === tabooSection.value) {
-          tabooVisible.value = true
-        }
-
-        locationObserver?.unobserve(entry.target)
-      })
-    },
-    {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px',
-    },
-  )
-
-  if (visitSection.value) {
-    locationObserver.observe(visitSection.value)
-  } else {
-    visitVisible.value = true
+  finally {
+    newsletterSubmitting.value = false
   }
-
-  if (tabooSection.value) {
-    locationObserver.observe(tabooSection.value)
-  } else {
-    tabooVisible.value = true
-  }
-})
-
-onBeforeUnmount(() => {
-  locationObserver?.disconnect()
-})
+}
 
 </script>
 
 <template>
-  <div class="min-h-screen bg-page">
+  <div class="min-h-screen bg-page"  :data-theme="siteTheme">
     <!-- Header -->
       <header
     class="fixed inset-x-0 top-0 z-50 overflow-visible border-b border-navbar-divider bg-navbar backdrop-blur"
@@ -1312,42 +999,35 @@ onBeforeUnmount(() => {
           aria-label="Foxy's menu"
           @click="mobileMenuOpen = false"
         >
+        
           <img
-            :src="foxysLogo"
+            :src="foxysLogoPng"
             alt="Foxy's"
             class="absolute left-0 top-1 w-47.5 max-w-none object-contain drop-shadow-md sm:w-56.25 lg:w-62.5"
           />
         </a>
 
         <!-- Desktop navigation -->
-        <div class="hidden items-center gap-8 md:flex">
+        <div class="hidden items-center gap-8 2xl:flex">
           <div
             class="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pl-4 scrollbar-none sm:pl-8 [&::-webkit-scrollbar]:hidden"
-            role="tablist"
             aria-label="Website sections"
           >
-            <button
+            <a
               v-for="item in navigation"
-              :key="item.tab"
-              type="button"
-              class="relative shrink-0 overflow-visible rounded-full border px-4 py-2 font-body text-sm font-black uppercase tracking-[0.02em] transition"
+              :key="item.key"
+              :href="item.href"
+              :target="item.key === 'shop' ? '_blank' : undefined"
+              :rel="item.key === 'shop' ? 'noopener noreferrer' : undefined"
+              class="relative shrink-0 overflow-visible rounded-full border px-4 py-2 font-navigation text-[1.22rem] font-black uppercase tracking-normal transition"
               :class="[
-                activeTab === item.tab
-                  ? 'border-navbar-active bg-navbar-active text-navbar-active-foreground'
-                  : 'border-navbar-border bg-transparent text-navbar-foreground hover:border-navbar-border hover:text-navbar-foreground hover:bg-surface-muted',
-
-                item.tab === 'oyn' ? 'oyn-nav-button' : '',
-
-                item.tab === 'oyn' && activeTab === item.tab
-                  ? 'is-active'
-                  : '',
+                'border-navbar-border bg-transparent text-navbar-foreground hover:border-navbar-active-border hover:bg-navbar-active hover:text-navbar-active-foreground',
+                item.key === 'oyn' ? 'oyn-nav-button' : '',
               ]"
-              :aria-selected="activeTab === item.tab"
-              :aria-controls="`tab-panel-${item.tab}`"
-              @click="showTab(item.tab)"
+              @click="handleNavigation(item, $event)"
             >
               <!-- Old Year's Night sparkles -->
-              <template v-if="item.tab === 'oyn'">
+              <template v-if="item.key === 'oyn'">
                 <span
                   class="oyn-star left-1.25 top-0.5 text-[8px]"
                   style="animation-delay: 0s"
@@ -1400,7 +1080,7 @@ onBeforeUnmount(() => {
               <span class="relative z-10">
                 {{ item.name }}
               </span>
-            </button>
+            </a>
           </div>
 
           
@@ -1409,11 +1089,28 @@ onBeforeUnmount(() => {
         <!-- Mobile menu button -->
         <button
           type="button"
-          class="inline-flex size-10 items-center justify-center rounded-lg text-navbar-icon hover:bg-navbar-icon/10 focus:outline-none focus:ring-2 focus:ring-accent md:hidden"
+          class="
+            ml-3
+            inline-flex
+            min-h-11.5
+            shrink-0
+            items-center
+            gap-2.5
+            rounded-full
+            border-[1.5px]
+            border-sand/40
+            bg-sand/8
+            py-2.75
+            pr-4.5
+            pl-3.75
+            text-sand
+            2xl:hidden
+            text-cream
+          "
+          aria-label="Open menu"
           :aria-expanded="mobileMenuOpen"
           aria-controls="mobile-menu"
-          aria-label="Toggle navigation menu"
-          @click="mobileMenuOpen = !mobileMenuOpen"
+          @click="mobileMenuOpen = true"
         >
           <svg
             v-if="!mobileMenuOpen"
@@ -1446,97 +1143,212 @@ onBeforeUnmount(() => {
               d="M6 18 18 6M6 6l12 12"
             />
           </svg>
+          <span
+            class="
+              font-navigation
+              text-[1.15rem]
+              font-medium
+              uppercase
+              tracking-[0.04em]
+            "
+          >
+            Menu
+          </span>
         </button>
       </nav>
 
-      <!-- Mobile navigation -->
-      <div
-        v-show="mobileMenuOpen"
-        id="mobile-menu"
-        class="border-t border-navbar-divider bg-navbar-mobile-surface px-4 py-4 shadow-lg sm:hidden"
-      >
-        <div class="mx-auto flex max-w-7xl flex-col gap-1">
-          <button
-            v-for="item in navigation"
-            :key="item.tab"
-            type="button"
-            class="rounded-lg px-4 py-3 text-left font-body font-semibold transition"
-            :class="
-              activeTab === item.tab
-                ? 'bg-accent/10 text-accent'
-                : 'text-navbar-icon hover:bg-navbar-icon/10 hover:text-accent'
-            "
-            :aria-current="
-              activeTab === item.tab
-                ? 'page'
-                : undefined
-            "
-            @click="showTab(item.tab)"
-          >
-            {{ item.name }}
-          </button>
+      <!-- Mobile menu backdrop -->
+       <Teleport to="body">
+        <!-- Backdrop -->
+        <div
+          class="
+            fixed
+            inset-0
+            z-190
+            bg-[rgba(4,20,24,0.62)]
+            backdrop-blur-[3px]
+            transition-[opacity,visibility]
+            duration-280
+            2xl:hidden
+          "
+          :class="
+            mobileMenuOpen
+              ? 'visible pointer-events-auto opacity-100'
+              : 'invisible pointer-events-none opacity-0'
+          "
+          aria-hidden="true"
+          @click="mobileMenuOpen = false"
+        />
 
-          <a
-            href="#reserve"
-            class="mt-3 rounded-lg bg-accent px-4 py-3 text-center font-semibold text-accent-foreground hover:bg-accent-hover"
-            @click="mobileMenuOpen = false"
+        <!-- Mobile drawer -->
+        <aside
+          id="mobile-menu"
+          class="
+            fixed
+            inset-y-0
+            right-0
+            z-200
+            flex
+            h-dvh
+            w-[min(88vw,420px)]
+            flex-col
+            bg-[linear-gradient(180deg,#0C2E36_0%,#0A2830_100%)]
+            shadow-[-18px_0_48px_rgba(4,10,14,0.5)]
+            transition-transform
+            duration-300
+            ease-[cubic-bezier(.22,.7,.3,1)]
+            2xl:hidden
+          "
+          :class="
+            mobileMenuOpen
+              ? 'translate-x-0'
+              : 'pointer-events-none translate-x-[102%]'
+          "
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+          :aria-hidden="!mobileMenuOpen"
+        >
+          <!-- Header -->
+          <div
+            class="
+              flex
+              shrink-0
+              items-center
+              justify-between
+              border-b
+              border-cream/10
+              pt-5.5
+              pr-5
+              pb-4
+              pl-6
+            "
           >
-            Reserve
-          </a>
-        </div>
-      </div>
+            <span class="font-display text-[1.7rem] text-cream">
+              Where to?
+            </span>
+
+            <button
+              type="button"
+              class="
+                flex
+                size-11.5
+                items-center
+                justify-center
+                rounded-full
+                border-[1.5px]
+                border-cream/25
+                text-xl
+                text-cream
+              "
+              aria-label="Close menu"
+              @click="mobileMenuOpen = false"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- Navigation -->
+          <nav
+            class="
+              flex
+              min-h-0
+              flex-1
+              flex-col
+              overflow-y-auto
+              py-2
+            "
+          >
+            <a
+              v-for="item in navigation"
+              :key="item.key"
+              :href="item.href"
+              :target="item.key === 'shop' ? '_blank' : undefined"
+              :rel="item.key === 'shop' ? 'noopener noreferrer' : undefined"
+              class="
+                flex
+                min-h-15
+                shrink-0
+                items-center
+                border-b
+                border-cream/5
+                px-6
+                font-navigation
+                text-[1.34rem]
+                font-medium
+                transition-colors
+              "
+              :class="
+                item.key === 'oyn'
+                  ? 'bg-[rgba(212,175,95,0.16)] text-accent shadow-[inset_4px_0_0_currentColor]'
+                  : 'text-cream  active:bg-cream/5'
+              "
+              @click="handleNavigation(item, $event)"
+            >
+              <span>
+                {{ item.name }}
+
+                <span
+                  v-if="item.key === 'oyn'"
+                  aria-hidden="true"
+                  class="ml-2 text-[0.8em] text-accent "
+                >
+                  ✦
+                </span>
+              </span>
+            </a>
+          </nav>
+
+          <!-- Footer -->
+          <div
+            class="
+              shrink-0
+              border-t
+              border-cream/10
+              px-6
+              pt-4.5
+              pb-[calc(20px+env(safe-area-inset-bottom))]
+            "
+          >
+            <a
+              href="tel:+12844423074"
+              class="
+                block
+                py-2
+                text-center
+                font-navigation
+                text-[1.15rem]
+                text-cream/80
+              "
+            >
+              Call +1 284 442-3074
+            </a>
+          </div>
+        </aside>
+      </Teleport>
     </header>
 
     <main>
-      <!-- Old Year's Night hero -->
-      <OldYearsNightHero
-        v-if="activeTab === 'oyn'"
-      />
-
       <!-- Home hero -->
-      <NormalHero
-        v-else-if="activeTab === 'home'"
-      />
-
-      <!-- Why Here -->
-      <SectionWhyHere
-        v-if="activeTab === 'home'"
-      />
-
-    <!-- After Dark -->
-      <SectionAfterDark
-        v-if="activeTab === 'home'"
-      />
-
-      <!-- The Walls -->
-      <SectionTheWalls
-        v-if="activeTab === 'home'"
-      />
-
-      <!-- Foxy Calypso -->
-      <SectionFoxyCalypso
-        v-if="activeTab === 'home'"
-      />
-
-      <!-- Visit-->
-      <SectionVisitUs
-        v-if="activeTab === 'home'"
-      />
-
-      <!-- Reviews -->  
-      <GoogleReviews
-        v-show="activeTab === 'home'"
-      />
-
-      <!-- Foxy's Postcard Generator -->
-      <PostcardMaker
-        v-show="activeTab === 'home'"
-        :logo-src="foxyTailBlack"
-      />
+      <NormalHero />
+      
+      <component
+        :is="separatorComponent"
+        class="absolute inset-x-0 bottom-7.5 z-10"
+        v-bind="
+          siteTheme === 'sand-v1'
+            ? {
+                topColor: 'transparent',
+                bottomColor: 'transparent',
+                position: '0%',
+              }
+            : {}
+        "
+      /> 
 
       <!-- Old Year's Night content -->
       <OldYearsNight
-        v-show="activeTab === 'oyn'"
+      class="-mt-25"
         @buy-ticket="addTicketToCart"
       />
 
@@ -1821,186 +1633,177 @@ onBeforeUnmount(() => {
         </p>
       </aside>
     </div>
+
+    <component
+      :is="separatorComponent"
+      class="absolute inset-x-0 bottom-0 z-10"
+      v-bind="
+        siteTheme === 'sand-v1'
+          ? {
+              topColor: 'transparent',
+              bottomColor: 'bg-accent-deep',
+              position: '0%',
+            }
+          : {}
+      "
+    /> 
   
     <!-- Footer -->
-    <footer class="border-t border-footer-foreground/15 bg-footer-surface">
-      <div
-        class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-5 py-8 text-center sm:px-6 md:flex-row md:text-left lg:px-8"
-      >
-        <a
-          href="#home"
-          class="block shrink-0"
-          aria-label="Foxy's home"
-        >
-          <img
-            :src="foxysLogo"
-            alt="Foxy's"
-            class="block h-auto w-37.5 object-contain sm:w-43.75"
+    <footer
+      class="
+        bg-accent-deep
+        px-6
+        py-14
+        text-center
+      "
+    >
+      <div class="mx-auto max-w-130">
+        <!-- Foxy's logo -->
+        <FoxysLogo
+          color="white"
+          class="mx-auto h-auto w-52"
+        />
+
+        <!-- Newsletter -->
+        <div class="mx-auto mt-8 max-w-130">
+          <h4
+            class="
+              mx-auto
+              max-w-[26ch]
+              font-display
+              text-2xl
+              font-normal
+              uppercase
+              tracking-[0.02em]
+              text-cream
+            "
           >
-        </a>
+            Be first to know what's happening at Foxy's
+          </h4>
 
-        <p class="font-hand text-2xl text-footer-foreground sm:text-3xl">
-          See you in Jost Van Dyke!
-        </p>
+          <form
+            class="
+              mt-5
+              flex
+              flex-col
+              gap-3
+              sm:flex-row
+            "
+            @submit.prevent="submitNewsletter"
+          >
+          <div
+              class="absolute left-[-9999px]"
+              aria-hidden="true"
+            >
+              <label for="newsletter-website">
+                Website
+              </label>
 
-        <p class="font-body text-right text-xs text-footer-muted">
-          © {{ new Date().getFullYear() }} Foxy’s Tamarind Bar and Restaurant.<br> All rights reserved.
-        </p>
+              <input
+                id="newsletter-website"
+                v-model="newsletterWebsite"
+                name="website"
+                type="text"
+                tabindex="-1"
+                autocomplete="off"
+              >
+            </div>
+            <label
+              for="footer-email"
+              class="sr-only"
+            >
+              Email address
+            </label>
+
+            <input
+              id="footer-email"
+              v-model.trim="newsletterEmail"
+              type="email"
+              required
+              placeholder="name@email.com"
+              class="
+                min-h-12
+                min-w-0
+                flex-1
+                rounded-full
+                border
+                border-cream/30
+                px-4.5
+                font-body
+                text-[1.15rem]
+                text-cream
+                outline-none
+                placeholder:text-cream/50
+                focus:border-turquoise
+                focus:ring-2
+                focus:ring-turquoise/30
+              "
+            >
+
+            <button
+              type="submit"
+              :disabled="newsletterSubmitting"
+              class="
+                min-h-12
+                shrink-0
+                rounded-full
+                bg-coral
+                px-6
+                transition
+                hover:brightness-105
+                disabled:cursor-wait
+                disabled:opacity-60
+                cursor-pointer
+              "
+            >
+              <span class="font-body text-[1.15rem] font-bold text-sand">
+                {{ newsletterSubmitting ? 'Submitting…' : 'Notify me' }}</span>
+            </button>
+          </form>
+
+          <p
+            v-if="newsletterMessage"
+            class="mt-3 font-body text-[1.15rem]"
+            :class="{
+              'text-turquoise':
+                newsletterStatus === 'success',
+
+              'text-accent':
+                newsletterStatus === 'already',
+
+              'text-coral-bright':
+                newsletterStatus === 'error',
+            }"
+          >
+            {{ newsletterMessage }}
+          </p>
+        </div>
       </div>
     </footer>
   </div>
 </template>
 
 <style scoped>
-.burgee{
-    background: 
-      linear-gradient(
-        100deg, 
-        var(--theme-burgee-gradient-start) 0%, 
-        var(--theme-burgee-gradient-mid) 55%, 
-        var(--theme-burgee-gradient-end) 100%
-        );
-
-    clip-path: 
-      polygon(
-        0 0, 
-        62% 0, 
-        100% 50%, 
-        62% 100%, 
-        0 100%); 
-        
-    padding:12px 46px 12px 18px; 
-    min-height:112px;
-    display:flex; 
-    flex-direction:column; 
-    justify-content:center; 
-    opacity:0; 
-    transform:scale(.85);
-    transition:opacity .5s ease, transform .5s ease; 
-    box-shadow: 3px 6px 10px var(--theme-burgee-shadow);
-    animation: burgee-enter 650ms ease-out forwards;
-    }
-
-    @keyframes burgee-enter {
-      from {
-        opacity: 0;
-        transform: translateY(22px) rotate(-1deg);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) rotate(0deg);
-      }
-    }
-  .burgee:nth-child(3n){transform:scale(.85) rotate(-1.5deg);}
-  .burgee:nth-child(3n+1){transform:scale(.85) rotate(1deg);}
-  .burgee.in-view:nth-child(3n){transform:rotate(-1.5deg);}
-  .burgee.in-view:nth-child(3n+1){transform:rotate(1deg);}
-  .burgee.in-view{opacity:1; transform:none;}
-  .burgee b{font-size:1.0rem; line-height:1.26; color:var(--theme-burgee-label); display:block;}
-  .burgee span{font-family:var(--font-family-mono); font-size:0.75rem; color:var(--theme-burgee-meta); margin-top:3px; display:block;}
-  @media (prefers-reduced-motion: reduce){ .burgee{transition:none;} }
-
-.burgee::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-
-  background:
-    linear-gradient(
-      150deg,
-      var(--theme-burgee-highlight),
-      transparent 42%
-    );
-
-  pointer-events: none;
+.newsletter-submit{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 14px 30px;
+  background: var(--palette-coral);
+  color: var(--sand);
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-family-navigation);
+  font-weight: 600;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: filter 0.15s ease;
 }
 
-.burgee::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 4px;
-
-  background: var(--theme-burgee-edge);
-}
-
-.burgee:hover {
-  transform:
-    translateY(-5px)
-    rotate(0deg)
-    scale(1.025);
-
-  filter: drop-shadow(
-    0 14px 18px var(--theme-burgee-hover-shadow)
-  );
-}
-
-.burgee-tilt-left {
-  transform: rotate(-1.2deg);
-}
-
-.burgee-tilt-right {
-  transform: rotate(1.2deg);
-}
-
-.burgee-content {
-  position: relative;
-  z-index: 1;
-  width: 76%;
-  padding: 18px 8px 18px 26px;
-}
-
-.burgee-name {
-  margin: 0;
-
-  color: var(--theme-burgee-title);
-
-  font-family: var(--font-family-mono);
-  font-size: 1.05rem;
-  font-weight: 700;
-  line-height: 1.15;
-}
-
-.burgee-location {
-  margin: 7px 0 0;
-
-  color: var(--theme-burgee-muted);
-
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, 'Liberation Mono', monospace;
-  font-size: 0.82rem;
-  line-height: 1.25;
-}
-
-@media (max-width: 639px) {
-  .burgee {
-    min-height: 126px;
-  }
-
-  .burgee-content {
-    padding-left: 30px;
-  }
-
-  .burgee-name {
-    font-size: 1.2rem;
-  }
-
-  .burgee-location {
-    font-size: 0.9rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .burgee {
-    transition: none;
-  }
-
-  .burgee:hover {
-    transform: none;
-  }
+.newsletter-submit:hover {
+  filter: brightness(1.06);
 }
 
 @keyframes oyn-button-glow {

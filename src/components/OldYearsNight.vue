@@ -10,6 +10,8 @@ import {
 
 import { API_URL } from '@/config/api'
 
+import OldYearsNightHero from '@/components/OldYearsNightHero.vue'
+
 import girlsDancingVideo from '@/assets/oyn/20260112_Foxys_OYN_ThankYou_720_28s_V7.mp4'
 import girlsDancingPoster from '@/assets/oyn/20260112_Foxys_OYN_ThankYou_720_28s_V7.png'
 import wheelandBrothersImage from '@/assets/oyn/wheeland-brothers.jpg'
@@ -20,23 +22,14 @@ import djDean from '@/assets/oyn/DjDean-on-black.png'
 import oynCrowdImage from '@/assets/oyn/oyn-crowd.jpg'
 import oynChampagneImage from '@/assets/oyn/oyn-champagne.jpg'
 import oynToastImage from '@/assets/oyn/oyn-toast.jpg'
-import venueMapAll from '@/assets/oyn/venue-map-all.jpeg'
-import venueMapEntry from '@/assets/oyn/venue-map-entry.jpeg'
-import venueMapVip from '@/assets/oyn/venue-map-vip.jpeg'
-import venueMapBbq from '@/assets/oyn/venue-map-bbq.jpeg'
-import venueMapCrust from '@/assets/oyn/venue-map-crust.jpeg'
+import venueMapAll from '@/assets/oyn/venue-map-all.png'
+import venueMapEntry from '@/assets/oyn/venue-map-entry.png'
+import venueMapVip from '@/assets/oyn/venue-map-vip.png'
+import venueMapBbq from '@/assets/oyn/venue-map-bbq.png'
+import venueMapCrust from '@/assets/oyn/venue-map-crust.png'
 
-type PlanGroup = 'arrival' | 'stay' | 'size'
-type ArrivalChoice = 'yacht' | 'ferry' | 'charter'
-type StayChoice = 'overnight' | 'day'
-type SizeChoice = 'couple' | 'group' | 'crew'
-type TicketKey = 'entry' | 'vip' | 'bbq' | 'crust'
 
-type PlanSelections = {
-  arrival: ArrivalChoice | null
-  stay: StayChoice | null
-  size: SizeChoice | null
-}
+type TicketKey = 'crust' | 'bbq' | 'vip' | 'entry'
 
 type Artist = {
   role: string
@@ -51,12 +44,6 @@ type Artist = {
     label: string
     url: string
   }>
-}
-
-type TimelineItem = {
-  time: string
-  title: string
-  description: string
 }
 
 type TicketTier = {
@@ -122,14 +109,9 @@ const ticketStyles: Record<
     activeClass: string
   }
 > = {
-  entry: {
-    backgroundClass: 'bg-oyn-ticket-entry',
-    activeClass: 'ring-oyn-ticket-entry-ring',
-  },
-
-  vip: {
-    backgroundClass: 'bg-oyn-ticket-vip',
-    activeClass: 'ring-oyn-ticket-vip-ring',
+  crust: {
+    backgroundClass: 'bg-oyn-ticket-crust',
+    activeClass: 'ring-oyn-ticket-crust-ring',
   },
 
   bbq: {
@@ -137,9 +119,42 @@ const ticketStyles: Record<
     activeClass: 'ring-oyn-ticket-bbq-ring',
   },
 
+  vip: {
+    backgroundClass: 'bg-oyn-ticket-vip',
+    activeClass: 'ring-oyn-ticket-vip-ring',
+  },
+
+  entry: {
+    backgroundClass: 'bg-oyn-ticket-entry',
+    activeClass: 'ring-oyn-ticket-entry-ring',
+  },
+}
+
+const ticketDisplay: Record<
+  TicketKey,
+  {
+    name: string
+    order: number
+  }
+> = {
   crust: {
-    backgroundClass: 'bg-oyn-ticket-crust',
-    activeClass: 'ring-oyn-ticket-crust-ring',
+    name: 'Upper Crust Dinner',
+    order: 1,
+  },
+
+  bbq: {
+    name: 'Upscale Beach BBQ',
+    order: 2,
+  },
+
+  vip: {
+    name: 'Outback VIP',
+    order: 3,
+  },
+
+  entry: {
+    name: 'General Admission',
+    order: 4,
   },
 }
 
@@ -248,45 +263,6 @@ const artists: Artist[] = [
   },
 ]
 
-const timeline: TimelineItem[] = [
-  {
-    time: '8:15 PM',
-    title: 'Maxx Cabello opens the night',
-    description:
-      "Maxx is back for another Old Year's Night — Bay Area blues guitar and soulful vocals that turn the beach into a sing-along from the first note.",
-  },
-  {
-    time: '10:00 PM',
-    title: 'The Wheeland Brothers take the stage',
-    description:
-      'This is when it stops being a beach bar and starts being a dance floor. Locals, yachties, and day-trippers all end up shoulder to shoulder.',
-  },
-  {
-    time: '11:45 PM',
-    title: 'GreenHouse Band takes over',
-    description:
-      'GreenHouse Band picks up the energy and carries the crowd toward midnight.',
-  },
-  {
-    time: 'Midnight',
-    title: 'The countdown',
-    description:
-      'For one minute, this speck of sand is the loudest place in the Caribbean — the whole beach counting down together, the anchored boats lit up across the harbour.',
-  },
-  {
-    time: 'Just after midnight',
-    title: 'GreenHouse Band keeps it going',
-    description:
-      "GreenHouse Band keeps playing on for the crowd that is not ready to let the year go yet.",
-  },
-  {
-    time: '1:15 AM',
-    title: 'DJ Dean closes it out',
-    description:
-      'Dean takes over out front and DJs until the very last song of the night.',
-  },
-]
-
 const countdown = reactive({
   days: '0',
   hours: '00',
@@ -329,130 +305,16 @@ function addOldYearsToCalendar(): void {
   )
 }
 
-const selections = reactive<PlanSelections>({
-  arrival: null,
-  stay: null,
-  size: null,
-})
-
-const itineraryBuilt = ref(false)
-const itineraryHeadline = ref('Your Midnight Journey')
-const itinerarySteps = ref<string[]>([])
-const itineraryResult = ref<HTMLElement | null>(null)
-
-const canBuildNight = computed(() => {
-  return Boolean(selections.arrival && selections.stay && selections.size)
-})
-
-const planOptions = {
-  arrival: [
-    { value: 'yacht', label: 'By yacht' },
-    { value: 'ferry', label: 'Ferry' },
-    { value: 'charter', label: 'Private charter' },
-  ],
-  stay: [
-    { value: 'overnight', label: 'Overnight on JVD' },
-    { value: 'day', label: 'Day trip back to Tortola' },
-  ],
-  size: [
-    { value: 'couple', label: 'Just us (1–2)' },
-    { value: 'group', label: 'Small group (3–6)' },
-    { value: 'crew', label: 'Full crew (7+)' },
-  ],
-} as const
-
-function selectPlanOption(group: PlanGroup, value: string): void {
-  if (group === 'arrival') {
-    selections.arrival = value as ArrivalChoice
-  } else if (group === 'stay') {
-    selections.stay = value as StayChoice
-  } else {
-    selections.size = value as SizeChoice
-  }
-
-  itineraryBuilt.value = false
-}
-
-const arrivalCopy: Record<ArrivalChoice, string[]> = {
-  yacht: [
-    "Clear customs at West End or Sopers Hole if you're arriving from the US side.",
-    "Pick up a mooring ball in Great Harbour or White Bay — they fill up fast for Old Year's Night.",
-    "Dinghy in to the beach; Foxy's is the one with decades of yacht flags on the ceiling.",
-  ],
-  ferry: [
-    'Catch a ferry from West End, Tortola — several operators run the Jost Van Dyke route.',
-    'The crossing runs roughly 25 minutes.',
-    "You'll land right in Great Harbour, a short walk from Foxy's.",
-  ],
-  charter: [
-    "Loop your charter captain in early — Old Year's Night is their busiest night of the year.",
-    "Check who handles customs if you're coming from the US side — most captains sort it, but confirm.",
-    "Ask about anchoring near Great Harbour versus White Bay for the walk to Foxy's.",
-    'Confirm a pickup window for after midnight, since the whole bay gets busy.',
-  ],
-}
-
-const stayCopy: Record<StayChoice, string[]> = {
-  overnight: [
-    "Book accommodation on JVD well ahead — rooms go early for Old Year's Night.",
-    'No need to watch the last boat; enjoy the full night through breakfast.',
-  ],
-  day: [
-    'Plan your last connection back to Tortola before crossings get busy.',
-    "Some operators run special after-midnight return trips for Old Year's Night — worth asking ahead.",
-  ],
-}
-
-const sizeCopy: Record<SizeChoice, string> = {
-  couple:
-    "Grab a spot near the dance floor — it's an easy place to end up dancing.",
-  group:
-    "Let Foxy's know your group size ahead of time if you want space together.",
-  crew:
-    'For 7+, reach out directly — larger groups are easier to seat with a heads-up.',
-}
-
-async function buildNight(): Promise<void> {
-  if (!selections.arrival || !selections.stay || !selections.size) {
-    return
-  }
-
-  const labels = {
-    yacht: 'Yacht',
-    ferry: 'Ferry',
-    charter: 'Private Charter',
-    overnight: 'Overnight',
-    day: 'Day Trip',
-  }
-
-  itineraryHeadline.value =
-    `Your Midnight Journey: ${labels[selections.arrival]} + ` +
-    labels[selections.stay]
-
-  itinerarySteps.value = [
-    ...arrivalCopy[selections.arrival],
-    ...stayCopy[selections.stay],
-    sizeCopy[selections.size],
-  ]
-
-  itineraryBuilt.value = true
-  await nextTick()
-  itineraryResult.value?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'nearest',
-  })
-}
-
 const tickets = ref<TicketTier[]>([])
 const ticketsLoading = ref(false)
 const ticketsError = ref('')
 
 function isTicketKey(value: string): value is TicketKey {
   return [
-    'entry',
-    'vip',
-    'bbq',
     'crust',
+    'bbq',
+    'vip',
+    'entry',
   ].includes(value as TicketKey)
 }
 
@@ -582,6 +444,11 @@ async function loadTickets(): Promise<void> {
 
         ...ticketStyles[ticket.key],
       }))
+      .sort(
+        (a, b) =>
+          ticketDisplay[a.key].order -
+          ticketDisplay[b.key].order,
+      )
   } catch (error) {
     console.error('Unable to load tickets:', error)
 
@@ -592,6 +459,15 @@ async function loadTickets(): Promise<void> {
   } finally {
     ticketsLoading.value = false
   }
+}
+
+function scrollToTickets(): void {
+  document
+    .getElementById('tickets')
+    ?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
 }
 
 onMounted(() => {
@@ -611,22 +487,23 @@ onBeforeUnmount(() => {
   <section
     id="tab-panel-oyn"
     aria-labelledby="old-years-night-title"
-    class="bg-(image:--section-gradient-primary) text-foreground font-body"
+    class="bg-(--palette-oyn-purple-deep) text-foreground font-body pb-10"
   >
+
+      <!-- Old Year's Night hero -->
+      <OldYearsNightHero />
     
     <div
       id="oyn-intro"
-      class="mx-auto w-full max-w-7xl scroll-mt-24 px-4 py-20 sm:px-6 sm:py-28 lg:px-8"
+      class="mx-auto w-full max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8"
     >
-      <p class="text-left text-lg leading-relaxed sm:text-2xl">
-        Once a year, this stretch of sand becomes the loudest place in the Caribbean.
-        <br class="hidden sm:block" />
-        Here's what Old Year's Night at Foxy's actually looks like.
+      <p class="text-left text-lg leading-relaxed sm:text-2xl text-cream">
+        One small bar, one great party, FOXY's!
       </p>
 
       <!-- Featured video -->
       <div
-        class="mt-12 rounded-lg border-[5px] border-media-frame-border bg-media-frame-surface p-3.5 shadow-oyn-hero"
+        class="media-lift mt-12 rounded-lg border-[5px] border-media-frame-border"
       >
         <div
           class="aspect-16/10 overflow-hidden rounded-md sm:aspect-video"
@@ -647,57 +524,46 @@ onBeforeUnmount(() => {
           </video>
         </div>
       </div>
+      <p class="font-navigation text-xl text-cream uppercase">Old Year's Night 2025</p>
 
       <!-- Lineup -->
-      <div id="oyn-lineup" class="scroll-mt-24 pt-20">
-        <p
-          class="text-sm font-semibold uppercase tracking-[0.16em] text-foreground/80 font-mono"
-        >
-          The 2026 lineup
-        </p>
+      <div id="oyn-lineup" class="scroll-mt-24 pt-10">
+        <h1 class="text-cream text-4xl font-display uppercase">Old Year's Night <span class="text-6xl">2026</span> at Foxy's</h1>
         <h2
-          class="mt-2 text-[clamp(1.15rem,2.5vw,2rem)] leading-none text-foreground font-body"
+          class="mt-2 text-2xl font-body text-cream"
         >
-          Who's playing December 31, 2026
+          Celebrate December 31 on Jost Van Dyke with The Wheeland Brothers, Maxx Cabello & GreenHouse Band.
         </h2>
 
-        <div
-          class="mt-8 flex flex-wrap items-center gap-6 rounded-lg bg-(image:--oyn-lineup-gradient) px-6 py-5 text-oyn-foreground shadow-oyn-card"
+        <button
+          type="button"
+          class="nye-lineup-cta"
+          @click="scrollToTickets"
         >
-          <div>
-            <span
-              class="block text-sm font-semibold uppercase tracking-[0.14em] text-oyn-warm font-mono"
-            >
-              Headlining
-            </span>
-            <div
-              class="mt-1 text-2xl uppercase leading-none font-body font-black sm:text-3xl"
-            >
-              The Wheeland Brothers
-            </div>
-          </div>
-          <div class="text-lg text-oyn-muted sm:text-xl">
-            with Maxx Cabello opening, plus GreenHouse Band
-          </div>
-        </div>
+          Get Tickets
+
+          <span aria-hidden="true">
+            ↓
+          </span>
+        </button>
 
         <div class="mt-7 grid gap-5 lg:grid-cols-3">
           <article
             v-for="artist in artists"
             :key="artist.name"
-            class="flex flex-col overflow-hidden rounded-lg bg-oyn-artist-surface text-oyn-foreground shadow-oyn-card"
+            class="flex flex-col overflow-hidden text-cream border-t-4 border-media-frame-border pt-4"
           >
             <img
               v-if="artist.image"
               :src="artist.image"
               :alt="artist.alt"
-              class="h-60 w-full object-cover"
+              class="media-lift h-60 w-full object-cover border-3 border-media-frame-border rounded-lg"
               :style="artist.objectPosition ? { objectPosition: artist.objectPosition } : undefined"
               loading="lazy"
             />
             <div
               v-else
-              class="flex h-60 w-full flex-col items-center justify-center gap-2.5 bg-(image:--oyn-artist-placeholder) text-center"
+              class="flex h-60 w-full flex-col items-center justify-center gap-2.5 [background:var(--oyn-artist-placeholder)] text-center font-navigation  text-cream border-3 border-media-frame-border rounded-lg md:text-lg sm:text-sm"
             >
               <span
                 aria-hidden="true"
@@ -715,7 +581,7 @@ onBeforeUnmount(() => {
 
             <div class="flex flex-1 flex-col p-6">
               <p
-                class="text-sm font-semibold uppercase tracking-[0.12em] text-oyn-role font-mono"
+                class="text-sm font-semibold uppercase tracking-[0.12em] font-navigation text-accent"
               >
                 {{ artist.role }}
               </p>
@@ -725,7 +591,7 @@ onBeforeUnmount(() => {
                 {{ artist.name }}
               </h3>
               <p
-                class="mt-4 text-base leading-relaxed text-oyn-foreground/80 [&_a]:font-semibold [&_a]:text-oyn-link [&_a]:underline [&_a]:decoration-oyn-link [&_a]:underline-offset-4 hover:[&_a]:decoration-oyn-link"
+                class="mt-4 text-base leading-relaxed text-oyn-foreground/80 [&_a]:font-semibold [&_a]:text-accent [&_a]:underline [&_a]:decoration-accent [&_a]:underline-offset-4 hover:[&_a]:decoration-accent"
                 v-html="artist.bio"
               ></p>
 
@@ -734,7 +600,7 @@ onBeforeUnmount(() => {
                   :href="artist.spotifyUrl"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="font-semibold text-oyn-warm hover:underline"
+                  class="font-semibold text-accent hover:underline"
                 >
                   Listen on Spotify →
                 </a>
@@ -756,7 +622,7 @@ onBeforeUnmount(() => {
           <figure
             v-for="image in OYNGalleryImages"
             :key="image.src"
-            class="group overflow-hidden rounded-xl border-[5px] border-media-frame-border shadow-oyn-lift"
+            class="media-lift group overflow-hidden rounded-xl border-[5px] border-media-frame-border"
           >
             <img
               :src="image.src"
@@ -779,15 +645,15 @@ onBeforeUnmount(() => {
             { value: countdown.seconds, label: 'Secs' },
           ]"
           :key="unit.label"
-          class="rounded-lg bg-oyn-countdown-surface p-5 text-center text-oyn-foreground shadow-oyn-soft"
+          class="p-5 text-center"
         >
           <div
-            class="text-[clamp(2rem,5vw,3.25rem)] font-semibold tabular-nums font-mono text-shadow-(--oyn-countdown-glow)"
+            class="text-4xl font-semibold tabular-nums font-navigation text-accent text-shadow-(--oyn-countdown-glow)"
           >
             {{ unit.value }}
           </div>
           <div
-            class="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-oyn-muted font-mono"
+            class="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-cream font-body"
           >
             {{ unit.label }}
           </div>
@@ -796,57 +662,21 @@ onBeforeUnmount(() => {
       <!-- add to calendar button -->
       <button
         type="button"
-        class="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border-2 border-foreground/45 px-6 py-2.5 text-sm font-bold uppercase tracking-[0.08em] text-foreground transition hover:border-foreground hover:bg-foreground hover:text-inverse font-mono"
+        class="mt-5 inline-flex min-h-11 items-center justify-center rounded-full border-2 border-cream/45 px-6 py-2.5  tracking-[0.08em] text-cream transition hover:border-foreground hover:bg-foreground hover:text-inverse"
         @click="addOldYearsToCalendar"
       >
-        Add to calendar
+        <span class="font-navigation text-md font-semibold">Add to Calendar</span>
       </button>
 
-      <!-- Timeline -->
-      <div class="pt-20">
-        <p
-          class="text-sm uppercase tracking-wide text-foreground/80 font-mono"
-        >
-          How the night unfolds
-        </p>
 
-        <div class="relative mt-8 border-l-2 border-foreground/30 pl-7">
-          <article
-            v-for="item in timeline"
-            :key="`${item.time}-${item.title}`"
-            class="relative pb-9 last:pb-0"
-          >
-            <span
-              class="absolute -left-8.5 top-1 size-3 rounded-full bg-oyn-timeline-accent ring-1 ring-oyn-timeline-accent"
-              aria-hidden="true"
-            ></span>
-            <p
-              class="text-sm font-normal uppercase tracking-[0.08em] text-foreground font-mono"
-            >
-              {{ item.time }}
-            </p>
-            <h3 class="mt-1 text-xl font-bold sm:text-2xl">
-              {{ item.title }}
-            </h3>
-            <p class="mt-2 text-xl leading-relaxed text-muted">
-              {{ item.description }}
-            </p>
-          </article>
-        </div>
-      </div>
 
       <!-- Tickets -->
-      <div id="reserve" class="scroll-mt-24 pt-20">
-        <p
-          class="text-sm uppercase tracking-wide text-foreground/80 font-mono"
-        >
-          Tickets
-        </p>
+      <div id="tickets" class="scroll-mt-24 pt-20">
+        <h1 class="text-cream text-4xl font-display uppercase">Tickets</h1>
         <h2
-          class="mt-2 text-[clamp(1.15rem,2.5vw,2rem)] leading-none text-foreground font-body"
+          class="mt-2 text-2xl font-body text-cream"
         >
-          Four ways to spend the night &mdash; from Outback Entry to Upper Crust. <br>
-          What changes is where you watch from and what is included.
+          Four ways to spend the night: Upper Crust Dinner to General Admission. Click on a ticket to see where you’ll be on the map below.
         </h2>
         <p class="mt-4 max-w-3xl text-lg leading-relaxed sm:text-xl">
         </p>
@@ -889,7 +719,7 @@ onBeforeUnmount(() => {
               >
                 {{ ticket.name }}
               </h3>
-              <div class="mt-3 text-4xl font-mono">
+              <div class="mt-3 text-4xl font-navigation">
                 {{ ticket.price }}
                 <span class="text-sm font-normal text-oyn-muted">
                   {{ ticket.priceSuffix }}
@@ -897,7 +727,7 @@ onBeforeUnmount(() => {
               </div>
               <p
                 v-if="ticket.alternatePrice"
-                class="mt-1 text-sm text-oyn-muted font-mono"
+                class="mt-1 text-sm text-oyn-muted font-navigation"
               >
                 {{ ticket.alternatePrice }}
               </p>
@@ -926,13 +756,13 @@ onBeforeUnmount(() => {
           </article>
         </div>
 
-        <p class="mt-4 text-md font-semibold italic text-foreground">
-          Outback VIP, Upscale BBQ and Upper Crust are limited.
-        </p>
-
+        <p class="mt-4 text-md font-semibold italic text-cream">
+          Tickets for the Outback VIP, Upscale Beach BBQ and Upper Crust Dinner are limited.
+        </p>     
+        
         <div
           ref="venueMapSection"
-          class="mt-7 rounded-lg bg-oyn-venue-surface p-4 text-oyn-foreground shadow-oyn-card sm:p-5"
+          class="mt-7 rounded-lg bg-oyn-venue-surface p-4 text-cream shadow-oyn-card sm:p-5"
         >
           <p
             class="rounded border border-dashed border-oyn-foreground/45 bg-oyn-foreground/10 px-5 py-4 text-center text-lg font-extrabold font-mono sm:text-xl"
@@ -951,151 +781,29 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Trip builder -->
-      <div class="pt-20">
-        <p
-          class="text-sm uppercase tracking-wide text-foreground/80 font-mono"
-        >
-          Plan your night
-        </p>
-        <p class="mt-0 text-xl leading-relaxed sm:text-2xl">
-          Answer three questions and we'll put together the shape of your trip.
-        </p>
-
-        <div
-          class="mt-7 rounded-lg bg-(image:--oyn-planner-gradient) px-4 py-6 text-oyn-foreground shadow-oyn-card sm:p-8"
-        >
-          <div class="grid gap-8 lg:grid-cols-3">
-            <fieldset>
-              <legend class="w-full">
-                <span
-                  class="inline-flex size-7 items-center justify-center rounded-full bg-oyn-foreground/15 text-sm font-bold font-mono"
-                >
-                  1
-                </span>
-                <span
-                  class="mt-3 block text-sm font-semibold uppercase tracking-widest text-oyn-muted font-mono"
-                >
-                  How are you arriving?
-                </span>
-              </legend>
-              <div class="mt-3 flex flex-col gap-2.5">
-                <button
-                  v-for="option in planOptions.arrival"
-                  :key="option.value"
-                  type="button"
-                  class="min-h-11 w-full rounded-full border px-4 py-2.5 text-left text-base transition font-mono"
-                  :class="
-                    selections.arrival === option.value
-                      ? 'border-oyn-accent bg-oyn-accent font-bold text-oyn-action-foreground'
-                      : 'border-oyn-foreground/50 bg-oyn-foreground/10 text-oyn-foreground hover:border-oyn-foreground'
-                  "
-                  @click="selectPlanOption('arrival', option.value)"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend class="w-full">
-                <span
-                  class="inline-flex size-7 items-center justify-center rounded-full bg-oyn-foreground/15 text-sm font-bold font-mono"
-                >
-                  2
-                </span>
-                <span
-                  class="mt-3 block text-sm font-semibold uppercase tracking-widest text-oyn-muted font-mono"
-                >
-                  Staying over, or day trip?
-                </span>
-              </legend>
-              <div class="mt-3 flex flex-col gap-2.5">
-                <button
-                  v-for="option in planOptions.stay"
-                  :key="option.value"
-                  type="button"
-                  class="min-h-11 w-full rounded-full border px-4 py-2.5 text-left text-base transition font-mono"
-                  :class="
-                    selections.stay === option.value
-                      ? 'border-oyn-accent bg-oyn-accent font-bold text-oyn-action-foreground'
-                      : 'border-oyn-foreground/50 bg-oyn-foreground/10 text-oyn-foreground hover:border-oyn-foreground'
-                  "
-                  @click="selectPlanOption('stay', option.value)"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend class="w-full">
-                <span
-                  class="inline-flex size-7 items-center justify-center rounded-full bg-oyn-foreground/15 text-sm font-bold font-mono"
-                >
-                  3
-                </span>
-                <span
-                  class="mt-3 block text-sm font-semibold uppercase tracking-widest text-oyn-muted font-mono"
-                >
-                  Party size
-                </span>
-              </legend>
-              <div class="mt-3 flex flex-col gap-2.5">
-                <button
-                  v-for="option in planOptions.size"
-                  :key="option.value"
-                  type="button"
-                  class="min-h-11 w-full rounded-full border px-4 py-2.5 text-left text-base transition font-mono"
-                  :class="
-                    selections.size === option.value
-                      ? 'border-oyn-accent bg-oyn-accent font-bold text-oyn-action-foreground'
-                      : 'border-oyn-foreground/50 bg-oyn-foreground/10 text-oyn-foreground hover:border-oyn-foreground'
-                  "
-                  @click="selectPlanOption('size', option.value)"
-                >
-                  {{ option.label }}
-                </button>
-              </div>
-            </fieldset>
-          </div>
-
-          <button
-            type="button"
-            class="mx-auto mt-8 block min-h-12 min-w-60 rounded-full px-7 py-3 text-2xl font-black tracking-[0.06em] transition font-body enabled:bg-oyn-action-surface enabled:text-oyn-action-foreground enabled:hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-oyn-action-surface/35 disabled:text-oyn-action-foreground/55"
-            :disabled="!canBuildNight"
-            @click="buildNight"
-          >
-            Build my night
-          </button>
-
-          <div
-            v-if="itineraryBuilt"
-            ref="itineraryResult"
-            class="mt-7 border-t border-dashed border-oyn-foreground/30 pt-6"
-          >
-            <h3
-              class="text-2xl text-oyn-warm font-body font-black"
-            >
-              {{ itineraryHeadline }}
-            </h3>
-            <ul class="mt-4 flex flex-col gap-3">
-              <li
-                v-for="step in itinerarySteps"
-                :key="step"
-                class="flex items-start gap-3 text-base leading-relaxed text-oyn-muted sm:text-xl"
-              >
-                <span class="mt-2 size-0 shrink-0 border-y-[6px] border-l-[9px] border-y-transparent border-l-oyn-timeline-accent"></span>
-                <span>{{ step }}</span>
-              </li>
-            </ul>
-            <p class="mt-5 text-sm italic leading-relaxed text-oyn-foreground/80">
-              Ferry times, mooring availability, and charter pricing change by season — this is a starting shape for your trip, not a booking. Confirm specifics directly with Foxy's or your ferry or charter operator before you travel.
-            </p>
-          </div>
-        </div>
-      </div>
-
     </div>
   </section>
 </template>
+<style scoped>
+.nye-lineup-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 14px 30px;
+  background: var(--palette-coral);
+  color: var(--sand);
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-family-navigation);
+  font-weight: 600;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: filter 0.15s ease;
+}
+
+.nye-lineup-cta:hover {
+  filter: brightness(1.06);
+}
+</style>
