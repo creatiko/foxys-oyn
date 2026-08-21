@@ -1370,30 +1370,68 @@ async function submitNewsletter(): Promise<void> {
     </button>
 
     <!-- Cart overlay -->
-    <div
-      v-if="cartOpen"
-      class="fixed inset-0 z-50 bg-overlay"
-      @click.self="cartOpen = false"
-    >
-      <aside
-        class="ml-auto flex h-full w-full max-w-md flex-col bg-cart-surface pl-8 pr-6 py-6 text-cart-foreground shadow-2xl"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Your ticket cart"
-      >
-        <div class="flex items-center justify-between">
+     <Teleport to="body">
+        <!-- Cart backdrop -->
+        <div
+          class="
+            fixed inset-0 z-210
+            bg-overlay
+            transition-opacity duration-280
+            motion-reduce:transition-none
+          "
+          :class="
+            cartOpen
+              ? 'pointer-events-auto opacity-100'
+              : 'pointer-events-none opacity-0'
+          "
+          @click="cartOpen = false"
+        />
+
+        <!-- Cart drawer -->
+        <aside
+          class="
+            fixed inset-y-0 right-0 z-220
+            flex h-dvh w-full max-w-md flex-col
+            bg-cart-surface py-6 pr-6 pl-8
+            text-cart-foreground shadow-2xl
+
+            transition-transform duration-300
+            ease-[cubic-bezier(.22,.7,.3,1)]
+            motion-reduce:transition-none
+          "
+          :class="
+            cartOpen
+              ? 'translate-x-0'
+              : 'pointer-events-none translate-x-[102%]'
+          "
+          role="dialog"
+          aria-modal="true"
+          aria-label="Your ticket cart"
+          :aria-hidden="!cartOpen"
+        >
+                  <div class="flex items-center justify-between">
           <h2 class="font-display text-3xl uppercase">
             Your cart
           </h2>
 
           <button
-            type="button"
-            class="rounded-full p-2 text-2xl"
-            aria-label="Close cart"
-            @click="cartOpen = false"
-          >
-            ×
-          </button>
+              type="button"
+              class="
+                flex
+                size-11.5
+                items-center
+                justify-center
+                rounded-full
+                border-[1.5px]
+                border-black/25
+                text-xl
+                text-black
+              "
+              aria-label="Close cart"
+              @click="cartOpen = false"
+            >
+              ✕
+            </button>
         </div>
 
         <!-- Completed payment -->
@@ -1457,7 +1495,7 @@ async function submitNewsletter(): Promise<void> {
 
               <button
                 type="button"
-                class="text-sm font-bold text-accent"
+                class="text-sm font-bold text-coral-bright"
                 @click="removeCartItem(item.ticketTypeId)"
               >
                 Remove
@@ -1578,9 +1616,9 @@ async function submitNewsletter(): Promise<void> {
             class="mt-5"
           >
             <div
-              class="rounded-lg border border-warning/40 bg-warning/10 px-4 py-3"
+              class="rounded-lg border border-orange-dark/40 bg-orange-dark/20 px-4 py-3"
             >
-              <p class="font-body font-black text-warning">
+              <p class="font-body font-black text-black">
                 Your tickets are temporarily reserved.
               </p>
 
@@ -1627,12 +1665,14 @@ async function submitNewsletter(): Promise<void> {
         <!-- Cart error message -->
         <p
           v-if="cartError"
-          class="mt-4 rounded-lg border border-accent/40 bg-accent/10 px-4 py-3 font-body text-sm font-bold text-accent"
+          class="mt-2 rounded-lg  px-4 py-3 font-body text-sm font-bold text-coral-bright"
         >
           {{ cartError }}
         </p>
-      </aside>
-    </div>
+
+        </aside>
+      </Teleport>
+
 
     <component
       :is="separatorComponent"
