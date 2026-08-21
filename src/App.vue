@@ -1418,7 +1418,7 @@ async function submitNewsletter(): Promise<void> {
           class="
             fixed inset-y-0 right-0 z-220
             flex h-dvh w-full max-w-md flex-col
-            bg-cart-surface py-6 pr-6 pl-8
+            bg-white py-6 pr-6 pl-8
             text-sand shadow-2xl
 
             transition-transform duration-300
