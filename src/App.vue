@@ -1607,29 +1607,6 @@ async function submitNewsletter(): Promise<void> {
             </p>
           </div> -->
 
-          <div
-            class="
-              mt-5 rounded-lg
-              border border-sand/20
-              bg-overlay-faint
-              px-4 py-3
-            "
-          >
-            <p
-              class="
-                font-body text-sm leading-relaxed
-                text-sand/80
-              "
-            >
-              <strong class="font-black text-red-700">
-                All ticket sales are final.
-              </strong>
-              If your travel plans change and you cannot make it
-              to Foxy's, you are responsible for transferring your
-              tickets to a third party.
-            </p>
-          </div>
-
           <!-- Before local order creation -->
           <div
             v-if="!checkoutOrder"
@@ -1653,7 +1630,7 @@ async function submitNewsletter(): Promise<void> {
                 <strong
                   class="
                     font-black
-                    text-cart-foreground
+                    text-red-700
                   "
                 >
                   All ticket sales are final.

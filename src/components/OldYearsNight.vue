@@ -497,7 +497,7 @@ onBeforeUnmount(() => {
       id="oyn-intro"
       class="mx-auto w-full max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8"
     >
-      <p class="text-center text-lg leading-relaxed sm:text-2xl text-cream">
+      <p class="text-center leading-relaxed sm:text-4xl text-3xl text-cream font-display">
         One small bar, one great party, FOXY's!
       </p>
 
