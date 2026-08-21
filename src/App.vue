@@ -363,6 +363,8 @@ function addTicketToCart(
     || paidOrder.value
   ) {
     startNewTransaction()
+  } else if (checkoutOrder.value) {
+    resetPendingCheckout()
   }
 
   cartError.value = ''
@@ -418,6 +420,10 @@ function addTicketToCart(
 function removeCartItem(
   ticketTypeId: number,
 ): void {
+  if (checkoutOrder.value) {
+    resetPendingCheckout()
+  }
+
   cartItems.value = cartItems.value.filter(
     (item) =>
       item.ticketTypeId !== ticketTypeId,
@@ -444,6 +450,10 @@ function setCartQuantity(
     return
   }
 
+  if (checkoutOrder.value) {
+    resetPendingCheckout()
+  }
+
   const minimum = item.minimumPerOrder
 
   const maximum =
@@ -455,6 +465,7 @@ function setCartQuantity(
   )
 
   validatedCart.value = null
+  cartError.value = ''
 
   void validateCart()
 }
@@ -876,6 +887,20 @@ watch(
   },
 )
 
+function resetPendingCheckout(): void {
+  checkoutOrder.value = null
+  checkoutCreating.value = false
+  paypalCapturing.value = false
+
+  cartError.value = ''
+  validatedCart.value = null
+
+  finalSaleAccepted.value = false
+
+  paypalButtonContainer.value
+    ?.replaceChildren()
+}
+
 // clear the cart and reset the checkout state when the user clicks another ticket purchase
 function startNewTransaction(): void {
   paymentComplete.value = false
@@ -887,7 +912,7 @@ function startNewTransaction(): void {
 
   checkoutCreating.value = false
   paypalCapturing.value = false
-  
+
   finalSaleAccepted.value = false
 }
 
