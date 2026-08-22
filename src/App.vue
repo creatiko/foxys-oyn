@@ -354,22 +354,29 @@ function handleNavigation(
     })
   })
 
-function addTicketToCart(
+async function addTicketToCart(
   ticket: TicketTier,
-): void {
+): Promise<void> {
   if (
     paymentComplete.value
     || paidOrder.value
   ) {
     startNewTransaction()
   } else if (checkoutOrder.value) {
-    resetPendingCheckout()
+    const released =
+      await resetPendingCheckout()
+
+    if (!released) {
+      cartOpen.value = true
+      return
+    }
   }
 
   cartError.value = ''
 
   const existingItem = cartItems.value.find(
-    (item) => item.ticketTypeId === ticket.id,
+    (item) =>
+      item.ticketTypeId === ticket.id,
   )
 
   if (existingItem) {
@@ -413,70 +420,92 @@ function addTicketToCart(
 
   cartOpen.value = true
 
-  void validateCart()
+  await validateCart()
 }
 
-function removeCartItem(
+async function removeCartItem(
   ticketTypeId: number,
-): void {
+): Promise<void> {
   if (checkoutOrder.value) {
-    resetPendingCheckout()
+    const released =
+      await resetPendingCheckout()
+
+    if (!released) {
+      return
+    }
   }
 
-  cartItems.value = cartItems.value.filter(
-    (item) =>
-      item.ticketTypeId !== ticketTypeId,
-  )
+  cartItems.value =
+    cartItems.value.filter(
+      (item) =>
+        item.ticketTypeId
+        !== ticketTypeId,
+    )
 
   cartError.value = ''
   validatedCart.value = null
+  finalSaleAccepted.value = false
 
   if (cartItems.value.length > 0) {
-    void validateCart()
+    await validateCart()
   }
 }
 
-function setCartQuantity(
+async function setCartQuantity(
   ticketTypeId: number,
   quantity: number,
-): void {
+): Promise<void> {
   const item = cartItems.value.find(
     (cartItem) =>
-      cartItem.ticketTypeId === ticketTypeId,
+      cartItem.ticketTypeId
+      === ticketTypeId,
   )
 
-  if (!item || !Number.isInteger(quantity)) {
+  if (
+    !item
+    || !Number.isInteger(quantity)
+  ) {
     return
   }
 
   if (checkoutOrder.value) {
-    resetPendingCheckout()
+    const released =
+      await resetPendingCheckout()
+
+    if (!released) {
+      return
+    }
   }
 
-  const minimum = item.minimumPerOrder
+  const minimum =
+    item.minimumPerOrder
 
   const maximum =
     item.maximumPerOrder ?? 50
 
   item.quantity = Math.min(
     maximum,
-    Math.max(minimum, quantity),
+    Math.max(
+      minimum,
+      quantity,
+    ),
   )
 
   validatedCart.value = null
   cartError.value = ''
+  finalSaleAccepted.value = false
 
-  void validateCart()
+  await validateCart()
 }
 
-function handleCartQuantityChange(
+async function handleCartQuantityChange(
   ticketTypeId: number,
   event: Event,
-): void {
+): Promise<void> {
   const input =
     event.target as HTMLInputElement
 
-  setCartQuantity(
+  await setCartQuantity(
     ticketTypeId,
     Number(input.value),
   )
@@ -886,18 +915,59 @@ watch(
   },
 )
 
-function resetPendingCheckout(): void {
-  checkoutOrder.value = null
-  checkoutCreating.value = false
-  paypalCapturing.value = false
+async function resetPendingCheckout(): Promise<boolean> {
+  const pendingOrder = checkoutOrder.value
 
-  cartError.value = ''
-  validatedCart.value = null
+  if (!pendingOrder) {
+    return true
+  }
 
-  finalSaleAccepted.value = false
+  try {
+    const response = await fetch(
+      `${API_URL}/orders/${pendingOrder.id}/cancel`,
+      {
+        method: 'POST',
 
-  paypalButtonContainer.value
-    ?.replaceChildren()
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+
+        body: JSON.stringify({}),
+      },
+    )
+
+    if (!response.ok) {
+      const data = await readJsonResponse<
+        ApiValidationError
+      >(response)
+
+      throw new Error(
+        getFirstApiError(data),
+      )
+    }
+
+    checkoutOrder.value = null
+    checkoutCreating.value = false
+    paypalCapturing.value = false
+
+    validatedCart.value = null
+    cartError.value = ''
+
+    finalSaleAccepted.value = false
+
+    paypalButtonContainer.value
+      ?.replaceChildren()
+
+    return true
+  } catch (error) {
+    cartError.value =
+      error instanceof Error
+        ? error.message
+        : 'The existing reservation could not be released.'
+
+    return false
+  }
 }
 
 // clear the cart and reset the checkout state when the user clicks another ticket purchase
