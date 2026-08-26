@@ -98,6 +98,18 @@ const cartSubtotalCents = computed(() => {
 
 //paypal checkout
 const deliveryTelephone = ref('')
+const smsConsent = ref(false)
+
+const smsConsentError = computed(() => {
+  if (
+    deliveryTelephone.value.trim() !== ''
+    && !smsConsent.value
+  ) {
+    return 'Please agree to SMS ticket delivery before continuing.'
+  }
+
+  return ''
+})
 
 const deliveryTelephoneError = computed(() => {
   const telephone =
@@ -621,6 +633,20 @@ async function createCheckoutOrder(): Promise<void> {
     return
   }
 
+  if (deliveryTelephoneError.value) {
+    cartError.value =
+      deliveryTelephoneError.value
+
+    return
+  }
+
+  if (smsConsentError.value) {
+    cartError.value =
+      smsConsentError.value
+
+    return
+  }
+
   checkoutCreating.value = true
   cartError.value = ''
 
@@ -701,6 +727,16 @@ async function createPayPalOrder(
       deliveryTelephoneError.value
     )
   }
+
+  if (smsConsentError.value) {
+    cartError.value =
+      smsConsentError.value
+
+    throw new Error(
+      smsConsentError.value
+    )
+  }
+
   const response = await fetch(
     `${API_URL}/orders/${localOrderId}/paypal`,
     {
@@ -788,8 +824,89 @@ async function capturePayPalOrder(
   }
 }
 
+const paypalMode =
+  import.meta.env.VITE_PAYPAL_MODE === 'live'
+    ? 'live'
+    : 'sandbox'
+
+const paypalClientId =
+  paypalMode === 'live'
+    ? import.meta.env.VITE_PAYPAL_CLIENT_ID
+    : import.meta.env.VITE_SANDBOX_PAYPAL_CLIENT_ID
+
+let paypalSdkPromise:
+  Promise<PayPalNamespace> | null = null
+
+function loadPayPalSdk(): Promise<PayPalNamespace> {
+  if (window.paypal) {
+    return Promise.resolve(window.paypal)
+  }
+
+  if (paypalSdkPromise) {
+    return paypalSdkPromise
+  }
+
+  paypalSdkPromise =
+    new Promise<PayPalNamespace>(
+      (resolve, reject) => {
+        if (!paypalClientId) {
+          reject(
+            new Error(
+              `PayPal ${paypalMode} client ID is not configured.`
+            )
+          )
+
+          return
+        }
+
+        const script =
+          document.createElement('script')
+
+        script.src =
+          'https://www.paypal.com/sdk/js'
+          + `?client-id=${encodeURIComponent(
+            paypalClientId
+          )}`
+          + '&currency=USD'
+          + '&components=buttons'
+
+        script.async = true
+        script.dataset.paypalSdk = 'true'
+
+        script.onload = () => {
+          if (!window.paypal) {
+            paypalSdkPromise = null
+
+            reject(
+              new Error(
+                'PayPal SDK loaded but PayPal was unavailable.'
+              )
+            )
+
+            return
+          }
+
+          resolve(window.paypal)
+        }
+
+        script.onerror = () => {
+          paypalSdkPromise = null
+
+          reject(
+            new Error(
+              'PayPal SDK could not be loaded.'
+            )
+          )
+        }
+
+        document.head.appendChild(script)
+      }
+    )
+
+  return paypalSdkPromise
+}
+
 async function renderPayPalButtons(): Promise<void> {
-  const paypal = window.paypal
   const container =
     paypalButtonContainer.value
 
@@ -800,7 +917,16 @@ async function renderPayPalButtons(): Promise<void> {
     return
   }
 
-  if (!paypal) {
+  let paypal: PayPalNamespace
+
+  try {
+    paypal = await loadPayPalSdk()
+  } catch (error) {
+    console.error(
+      'Unable to load PayPal:',
+      error,
+    )
+
     cartError.value =
       'PayPal could not be loaded. Please refresh the page.'
 
@@ -983,6 +1109,8 @@ function startNewTransaction(): void {
   paypalCapturing.value = false
 
   finalSaleAccepted.value = false
+
+  smsConsent.value = false
 }
 
 // NEWSLETTER SUBSCRIPTIONS
@@ -1009,7 +1137,7 @@ async function submitNewsletter(): Promise<void> {
 
   try {
     const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/subscribers`,
+      `${API_URL}/subscribers`,
       {
         method: 'POST',
 
@@ -1537,7 +1665,7 @@ async function submitNewsletter(): Promise<void> {
           class="mt-6 flex flex-1 flex-col"
         >
           <div
-            class="rounded-lg border border-success-border/40 bg-overlay-soft px-5 py-4"
+            class="rounded-lg border border-success-border/40 bg-overlay px-5 py-4"
           >
             <p
               class="font-body text-lg font-black text-success"
@@ -1644,7 +1772,7 @@ async function submitNewsletter(): Promise<void> {
             </span>
           </div>
 
-          <!-- <div class="mt-5">
+          <div class="mt-5">
             <label
               for="delivery-telephone"
               class="block font-body font-bold text-sand"
@@ -1675,7 +1803,32 @@ async function submitNewsletter(): Promise<void> {
             >
               {{ deliveryTelephoneError }}
             </p>
-          </div> -->
+            <label
+              class="mt-3 flex items-start gap-3"
+            >
+              <input
+                v-model="smsConsent"
+                type="checkbox"
+                class="mt-1 size-4 shrink-0"
+              >
+
+              <span class="font-body text-xs leading-relaxed text-cart-foreground/70">
+                By checking this box, I agree to receive SMS ticket
+                delivery and order updates from Foxy's Bar. Message
+                frequency may vary. Message and data rates may apply.
+                Reply STOP to opt out or HELP for help. Consent is not
+                a condition of purchase. We will not share mobile
+                information with third parties for promotional or
+                marketing purposes.
+              </span>
+            </label>
+            <p
+              v-if="smsConsentError"
+              class="mt-2 font-body text-xs font-bold text-red-600"
+            >
+              {{ smsConsentError }}
+            </p>
+          </div>
 
           <!-- Before local order creation -->
           <div
@@ -1761,6 +1914,7 @@ async function submitNewsletter(): Promise<void> {
                 || !validatedCart
                 || Boolean(cartError)
                 || Boolean(deliveryTelephoneError)
+                || Boolean(smsConsentError)
                 || !finalSaleAccepted
               "
               @click="createCheckoutOrder"

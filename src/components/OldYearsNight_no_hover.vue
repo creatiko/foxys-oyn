@@ -22,11 +22,11 @@ import djDean from '@/assets/oyn/DjDean-on-black.png'
 import oynCrowdImage from '@/assets/oyn/oyn-crowd.jpg'
 import oynChampagneImage from '@/assets/oyn/oyn-champagne.jpg'
 import oynToastImage from '@/assets/oyn/oyn-toast.jpg'
-import venueMapAll from '@/assets/oyn/venue-map-all-2560.webp'
-import venueMapEntry from '@/assets/oyn/venue-map-entry-2560.webp'
-import venueMapVip from '@/assets/oyn/venue-map-vip-2560.webp'
-import venueMapBbq from '@/assets/oyn/venue-map-bbq-2560.webp'
-import venueMapCrust from '@/assets/oyn/venue-map-crust-2560.webp'
+import venueMapAll from '@/assets/oyn/venue-map-all.webp'
+import venueMapEntry from '@/assets/oyn/venue-map-entry.webp'
+import venueMapVip from '@/assets/oyn/venue-map-vip.webp'
+import venueMapBbq from '@/assets/oyn/venue-map-bbq.webp'
+import venueMapCrust from '@/assets/oyn/venue-map-crust.webp'
 
 
 type TicketKey = 'crust' | 'bbq' | 'vip' | 'entry'
@@ -162,7 +162,6 @@ type VenueMap = {
   src: string
   alt: string
   note: string
-  activeClass: string
 }
 
 const emit = defineEmits<{
@@ -336,39 +335,33 @@ const venueMaps: Record<TicketKey | 'default', VenueMap> = {
     src: venueMapAll,
     alt: "Foxy's Old Year's Night venue map showing all event areas",
     note: 'Choose a ticket tier to highlight the areas included with it.',
-    activeClass: 'border-oyn-venue-surface',
   },
   entry: {
     src: venueMapEntry,
     alt: 'Outback Entry access map with Foxhole, Tamarind Bar, Beach Level, and General Admission highlighted',
     note:
       'Outback Entry gets you General Admission, the Foxhole, Tamarind Bar, and Beach Level.',
-    activeClass: 'border-oyn-ticket-entry-ring',
   },
   vip: {
     src: venueMapVip,
     alt: 'Outback VIP access map with Foxhole, Tamarind Bar, Beach Level, General Admission, and Outback VIP highlighted',
     note:
       'Outback VIP adds the exclusive Outback VIP seating and lounge on top of everything Outback Entry includes.',
-    activeClass: 'border-oyn-ticket-vip-ring',
   },
   bbq: {
     src: venueMapBbq,
     alt: 'Upscale BBQ access map with Foxhole, Tamarind Bar, Beach Level, Upscale BBQ, and General Admission highlighted',
     note:
       'Upscale BBQ includes the sit-down BBQ at Beach Level, plus General Admission, Foxhole, and Tamarind Bar.',
-    activeClass: 'border-oyn-ticket-bbq-ring',
   },
   crust: {
     src: venueMapCrust,
     alt: 'Upper Crust access map with Upper Crust, the second-floor Outback Buffet, Outback VIP, and the public event areas highlighted',
     note:
       "Upper Crust's elevated sit-down meal comes with Outback VIP, the second-floor Outback Buffet, General Admission, Foxhole, Tamarind Bar, and Beach Level.",
-    activeClass: 'border-oyn-ticket-crust-ring',
   },
 }
 
-// Mobile/tablet ticket state. Keep the current click + scroll interaction.
 const selectedTicket = ref<TicketKey | null>(null)
 const venueMapSection = ref<HTMLElement | null>(null)
 const currentVenueMap = computed(() => {
@@ -383,43 +376,6 @@ async function selectTicket(ticket: TicketTier): Promise<void> {
   venueMapSection.value?.scrollIntoView({
     behavior: 'smooth',
     block: 'center',
-  })
-}
-
-// Desktop ticket state. Hover/focus changes the map without scrolling.
-const desktopSelectedTicket = ref<TicketKey>('crust')
-
-const desktopTicket = computed<TicketTier | null>(() => {
-  return tickets.value.find(
-    (ticket) => ticket.key === desktopSelectedTicket.value,
-  ) ?? tickets.value[0] ?? null
-})
-
-const desktopVenueMap = computed<VenueMap>(() => {
-  return desktopTicket.value
-    ? venueMaps[desktopTicket.value.key]
-    : venueMaps.default
-})
-
-function selectDesktopTicket(ticket: TicketTier): void {
-  desktopSelectedTicket.value = ticket.key
-}
-
-function preloadDesktopVenueMaps(): void {
-  if (!window.matchMedia('(min-width: 1024px)').matches) {
-    return
-  }
-
-  const desktopMaps: TicketKey[] = [
-    'crust',
-    'bbq',
-    'vip',
-    'entry',
-  ]
-
-  desktopMaps.forEach((key) => {
-    const image = new Image()
-    image.src = venueMaps[key].src
   })
 }
 
@@ -511,7 +467,6 @@ function scrollToTickets(): void {
 
 onMounted(() => {
   void loadTickets()
-  preloadDesktopVenueMaps()
   updateCountdown()
   countdownInterval = window.setInterval(updateCountdown, 1_000)
 })
@@ -711,274 +666,113 @@ onBeforeUnmount(() => {
 
 
       <!-- Tickets -->
-      <div id="tickets" class="scroll-mt-24 pt-20">
-        <!-- Mobile / tablet: preserve the current click-based ticket experience. -->
-        <div class="lg:hidden">
-          <h1 class="text-cream text-4xl font-display uppercase">Tickets</h1>
-          <h2
-            class="mt-2 text-2xl font-body text-cream"
-          >
-            Four ways to spend the night: Upper Crust Dinner to General Admission. Click on a ticket to see where you’ll be on the map below.
-          </h2>
-
-            <p class="mt-4 text-md font-semibold italic text-cream">
-              Tickets for the Outback VIP, Upscale Beach BBQ and Upper Crust Dinner are limited.
-            </p>
-
-          <div
-            v-if="ticketsLoading"
-            class="py-10 text-center font-body text-lg"
-          >
-            Loading tickets…
-          </div>
-
-          <p
-            v-else-if="ticketsError"
-            class="rounded-lg border border-oyn-error-border bg-oyn-error-surface px-5 py-4 font-body font-bold text-oyn-error"
-          >
-            {{ ticketsError }}
-          </p>
-
-          <div
-            v-else
-            class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4"
-          >
-            <article
-              v-for="ticket in tickets"
-              :key="ticket.key"
-              role="button"
-              tabindex="0"
-              class="relative flex cursor-pointer flex-col overflow-hidden rounded-lg p-5 text-oyn-foreground shadow-oyn-card transition hover:-translate-y-1 hover:shadow-oyn-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-              :class="[
-                ticket.backgroundClass,
-                ticket.activeClass,
-                selectedTicket === ticket.key ? 'ring-2 ring-offset-2 ring-offset-transparent' : '',
-              ]"
-              @click="selectTicket(ticket)"
-              @keydown.enter.prevent="selectTicket(ticket)"
-              @keydown.space.prevent="selectTicket(ticket)"
-            >
-              <div class="pointer-events-none absolute inset-0 bg-(image:--oyn-ticket-shine)"></div>
-
-              <div class="relative z-10 flex h-full flex-col">
-                <h3
-                  class="text-2xl leading-none font-black tracking-[0.02em] font-body"
-                >
-                  {{ ticket.name }}
-                </h3>
-                <div class="mt-3 text-4xl font-navigation">
-                  {{ ticket.price }}
-                  <span class="text-sm font-normal text-oyn-muted">
-                    {{ ticket.priceSuffix }}
-                  </span>
-                </div>
-                <p
-                  v-if="ticket.alternatePrice"
-                  class="mt-1 text-sm text-oyn-muted font-navigation"
-                >
-                  {{ ticket.alternatePrice }}
-                </p>
-
-                <ul class="mt-4 flex flex-1 flex-col gap-2.5">
-                  <li
-                    v-for="feature in ticket.features"
-                    :key="feature"
-                    class="flex gap-2 text-sm leading-relaxed text-oyn-muted sm:text-base"
-                  >
-                    <span class="shrink-0 text-oyn-warm">—</span>
-                    <span>{{ feature }}</span>
-                  </li>
-                </ul>
-
-                <button
-                  type="button"
-                  :disabled="ticket.soldOut"
-                  class="mt-5 min-h-11 rounded-full border border-oyn-foreground/60 bg-oyn-foreground/15 px-5 py-2.5 text-base font-bold uppercase tracking-wider text-oyn-foreground transition hover:border-oyn-foreground hover:bg-oyn-foreground hover:text-oyn-action-foreground font-mono"
-                  @click.stop="emit('buyTicket', ticket)"
-                >
-                  {{ ticket.soldOut ? 'Sold out' : 'Buy now' }}
-                </button>
-              </div>
-            </article>
-          </div>
-
-          <div
-            ref="venueMapSection"
-            class="mt-7 rounded-lg bg-oyn-venue-surface p-4 text-cream shadow-oyn-card sm:p-5"
-          >
-            <p
-              class="rounded border border-dashed border-oyn-foreground/45 bg-oyn-foreground/10 px-5 py-4 text-center text-lg font-extrabold font-mono sm:text-xl"
-            >
-              Click on a ticket to see where you'll be on the map below.
-            </p>
-            <img
-              :src="currentVenueMap.src"
-              :alt="currentVenueMap.alt"
-              class="mt-4 block h-auto w-full rounded-lg"
-              loading="lazy"
-            />
-            <p class="mt-4 text-sm italic leading-relaxed text-oyn-foreground/80 sm:text-base">
-              {{ currentVenueMap.note }}
-            </p>
-          </div>
+      <div id="tickets" class="scroll-mt-24 pt-20 lg:hidden">
+        <h1 class="text-cream text-4xl font-display uppercase">Tickets</h1>
+        <h2
+          class="mt-2 text-2xl font-body text-cream"
+        >
+          Four ways to spend the night: Upper Crust Dinner to General Admission. Click on a ticket to see where you’ll be on the map below.
+        </h2>
+        <p class="mt-4 max-w-3xl text-lg leading-relaxed sm:text-xl">
+        </p>
+        <div
+          v-if="ticketsLoading"
+          class="py-10 text-center font-body text-lg"
+        >
+          Loading tickets…
         </div>
 
-        <!-- Desktop: hover/focus ticket selector + map overlays. -->
-        <div class="hidden lg:block">
-          <h1 class="text-cream text-4xl font-display uppercase">Tickets</h1>
-          <h2 class="mt-2 text-2xl font-body text-cream">
-            Four ways to spend the night: Upper Crust Dinner to General Admission.
-          </h2>
+        <p
+          v-else-if="ticketsError"
+          class="rounded-lg border border-oyn-error-border bg-oyn-error-surface px-5 py-4 font-body font-bold text-oyn-error"
+        >
+          {{ ticketsError }}
+        </p>
 
-          <p class="mt-4 text-md font-semibold italic text-cream">
-            Tickets for the Outback VIP, Upscale Beach BBQ and Upper Crust Dinner are limited.
-          </p>
-
-          <div
-            v-if="ticketsLoading"
-            class="flex h-[30svh] min-h-60 items-center justify-center text-center font-body text-lg"
+        <div
+          v-else class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <article
+            v-for="ticket in tickets"
+            :key="ticket.key"
+            role="button"
+            tabindex="0"
+            class="relative flex cursor-pointer flex-col overflow-hidden rounded-lg p-5 text-oyn-foreground shadow-oyn-card transition hover:-translate-y-1 hover:shadow-oyn-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            :class="[
+              ticket.backgroundClass,
+              ticket.activeClass,
+              selectedTicket === ticket.key ? 'ring-2 ring-offset-2 ring-offset-transparent' : '',
+            ]"
+            @click="selectTicket(ticket)"
+            @keydown.enter.prevent="selectTicket(ticket)"
+            @keydown.space.prevent="selectTicket(ticket)"
           >
-            Loading tickets…
-          </div>
+            <div class="pointer-events-none absolute inset-0 bg-(image:--oyn-ticket-shine)"></div>
 
-          <p
-            v-else-if="ticketsError"
-            class="mt-8 rounded-lg border border-oyn-error-border bg-oyn-error-surface px-5 py-4 font-body font-bold text-oyn-error"
-          >
-            {{ ticketsError }}
-          </p>
-
-          <template v-else>
-            <div
-              class="mt-6 grid h-[20svh] grid-cols-4 gap-5"
-              aria-label="Old Year's Night ticket options"
-            >
-              <article
-                v-for="ticket in tickets"
-                :key="`desktop-${ticket.key}`"
-                role="button"
-                tabindex="0"
-                :aria-pressed="desktopTicket?.key === ticket.key"
-                class="relative flex h-full cursor-pointer flex-col justify-between overflow-hidden rounded-lg p-5 text-oyn-foreground shadow-oyn-card transition duration-200 hover:-translate-y-1 hover:shadow-oyn-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                :class="[
-                  ticket.backgroundClass,
-                  ticket.activeClass,
-                  desktopTicket?.key === ticket.key ? 'ring-2 ring-offset-2 ring-offset-transparent' : '',
-                ]"
-                @mouseenter="selectDesktopTicket(ticket)"
-                @focus="selectDesktopTicket(ticket)"
-                @click="selectDesktopTicket(ticket)"
-                @keydown.enter.prevent="selectDesktopTicket(ticket)"
-                @keydown.space.prevent="selectDesktopTicket(ticket)"
+            <div class="relative z-10 flex h-full flex-col">
+              <h3
+                class="text-2xl leading-none font-black tracking-[0.02em] font-body"
               >
-                <div class="pointer-events-none absolute inset-0 bg-(image:--oyn-ticket-shine)"></div>
-
-                <div class="relative z-10">
-                  <h3
-                    class="text-xl leading-none font-black tracking-[0.02em] font-body xl:text-2xl"
-                  >
-                    {{ ticket.name }}
-                  </h3>
-
-                  <div class="mt-4 text-4xl font-navigation xl:text-5xl">
-                    {{ ticket.price }}
-                    <span class="text-sm font-normal text-oyn-muted">
-                      {{ ticket.priceSuffix }}
-                    </span>
-                  </div>
-
-                  <p
-                    v-if="ticket.alternatePrice"
-                    class="mt-1 text-sm text-oyn-muted font-navigation"
-                  >
-                    {{ ticket.alternatePrice }}
-                  </p>
-                </div>
-
-                <div class="relative z-10">
-                  <button
-                    v-if="desktopTicket?.key === ticket.key"
-                    type="button"
-                    :disabled="ticket.soldOut"
-                    class="min-h-10 mt-1 w-full rounded-full border border-oyn-foreground/60 bg-oyn-foreground/15 px-3 py-0 text-sm font-bold uppercase tracking-wider text-oyn-foreground transition hover:border-oyn-foreground hover:bg-oyn-foreground hover:text-oyn-action-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-oyn-foreground disabled:cursor-not-allowed disabled:opacity-60 font-mono cursor-pointer"
-                    @click.stop="emit('buyTicket', ticket)"
-                  >
-                    {{ ticket.soldOut ? 'Sold out' : 'Buy now' }}
-                  </button>
-
-                  <p
-                    v-else
-                    class="text-sm font-semibold uppercase tracking-[0.12em] text-oyn-muted font-navigation"
-                  >
-                    Hover to view
-                  </p>
-                </div>
-              </article>
-            </div>
-
-            <div
-              class="mt-6 overflow-hidden rounded-lg border-8 bg-oyn-venue-surface shadow-oyn-card"
-              :class="desktopVenueMap.activeClass"
-            >
-              <div
-                class="relative aspect-video"
-                :class="desktopVenueMap.activeClass"
-              >
-                <Transition name="venue-map-fade" mode="out-in">
-                  <img
-                    :key="desktopVenueMap.src"
-                    :src="desktopVenueMap.src"
-                    :alt="desktopVenueMap.alt"
-                    class="absolute inset-0 h-full w-full object-contain"
-                    loading="eager"
-                    fetchpriority="high"
-                  />
-                </Transition>
-
-                <aside
-                  v-if="desktopTicket"
-                  class="absolute left-[1%] top-[1%] z-10 w-[18%] max-w-md rounded-xl border border-oyn-foreground/30 bg-black/70 p-5 text-cream shadow-oyn-card backdrop-blur-sm xl:p-6"
-                >
-                  <p
-                    class="text-sm font-semibold uppercase tracking-[0.14em] text-accent font-navigation"
-                  >
-                    {{ desktopTicket.name }}
-                  </p>
-
-                  <h3 class="mt-0 text-xl font-black font-body">
-                    Features
-                  </h3>
-
-                  <ul class="mt-2 flex flex-col gap-2.5">
-                    <li
-                      v-for="feature in desktopTicket.features"
-                      :key="`desktop-feature-${feature}`"
-                      class="flex gap-1 text-sm leading-4.5 text-cream xl:text-base"
-                    >
-                      <span class="shrink-0 text-accent">&bull;</span>
-                      <span>{{ feature }}</span>
-                    </li>
-                  </ul>
-                </aside>
-
-                <button
-                  v-if="desktopTicket"
-                  type="button"
-                  :disabled="desktopTicket.soldOut"
-                  class="absolute bottom-[1%] right-[1%] z-10 min-w-50 rounded-xl border-2 border-oyn-foreground/60 px-2 py-2 text-center text-oyn-foreground shadow-oyn-card transition hover:-translate-y-0.5 hover:shadow-oyn-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-                  :class="desktopTicket.backgroundClass"
-                  @click="emit('buyTicket', desktopTicket)"
-                >
-                  <span class="block text-sm font-semibold uppercase tracking-[0.12em] font-navigation">
-                    {{ desktopTicket.name }}
-                  </span>
-                  <span class="mt-1 block text-xl font-black uppercase font-mono">
-                    {{ desktopTicket.soldOut ? 'Sold out' : `Buy now · ${desktopTicket.price}` }}
-                  </span>
-                </button>
+                {{ ticket.name }}
+              </h3>
+              <div class="mt-3 text-4xl font-navigation">
+                {{ ticket.price }}
+                <span class="text-sm font-normal text-oyn-muted">
+                  {{ ticket.priceSuffix }}
+                </span>
               </div>
+              <p
+                v-if="ticket.alternatePrice"
+                class="mt-1 text-sm text-oyn-muted font-navigation"
+              >
+                {{ ticket.alternatePrice }}
+              </p>
+
+              <ul class="mt-4 flex flex-1 flex-col gap-2.5">
+                <li
+                  v-for="feature in ticket.features"
+                  :key="feature"
+                  class="flex gap-2 text-sm leading-relaxed text-oyn-muted sm:text-base"
+                >
+                  <span class="shrink-0 text-oyn-warm">—</span>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+
+              <button
+                type="button"
+                :disabled="ticket.soldOut"
+                class="mt-5 min-h-11 rounded-full border border-oyn-foreground/60 bg-oyn-foreground/15 px-5 py-2.5 text-base font-bold uppercase tracking-wider text-oyn-foreground transition hover:border-oyn-foreground hover:bg-oyn-foreground hover:text-oyn-action-foreground font-mono"
+                @click.stop="emit('buyTicket', ticket)"
+              >
+                {{ ticket.soldOut ? 'Sold out' : 'Buy now' }}
+              </button>
+              <!-- Added STOP to prevent the scroll to the map  @click="emit('buyTicket', ticket)" -->
             </div>
-          </template>
+          </article>
+        </div>
+
+        <p class="mt-4 text-md font-semibold italic text-cream">
+          Tickets for the Outback VIP, Upscale Beach BBQ and Upper Crust Dinner are limited.
+        </p>     
+        
+        <div
+          ref="venueMapSection"
+          class="mt-7 rounded-lg bg-oyn-venue-surface p-4 text-cream shadow-oyn-card sm:p-5"
+        >
+          <p
+            class="rounded border border-dashed border-oyn-foreground/45 bg-oyn-foreground/10 px-5 py-4 text-center text-lg font-extrabold font-mono sm:text-xl"
+          >
+            Click on a ticket to see where you'll be on the map below.
+          </p>
+          <img
+            :src="currentVenueMap.src"
+            :alt="currentVenueMap.alt"
+            class="mt-4 block h-auto w-full rounded-lg"
+            loading="lazy"
+          />
+          <p class="mt-4 text-sm italic leading-relaxed text-oyn-foreground/80 sm:text-base">
+            {{ currentVenueMap.note }}
+          </p>
         </div>
       </div>
 
@@ -1006,15 +800,5 @@ onBeforeUnmount(() => {
 
 .nye-lineup-cta:hover {
   filter: brightness(1.06);
-}
-
-.venue-map-fade-enter-active,
-.venue-map-fade-leave-active {
-  transition: opacity 180ms ease;
-}
-
-.venue-map-fade-enter-from,
-.venue-map-fade-leave-to {
-  opacity: 0;
 }
 </style>
