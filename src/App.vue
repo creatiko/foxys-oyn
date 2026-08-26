@@ -1772,6 +1772,8 @@ async function submitNewsletter(): Promise<void> {
             </span>
           </div>
 
+          <!--- Mobile Number for SMS -->
+          <!-- 
           <div class="mt-5">
             <label
               for="delivery-telephone"
@@ -1828,7 +1830,7 @@ async function submitNewsletter(): Promise<void> {
             >
               {{ smsConsentError }}
             </p>
-          </div>
+          </div> -->
 
           <!-- Before local order creation -->
           <div
