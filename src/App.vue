@@ -78,10 +78,24 @@ const validatedCart = ref<ValidatedCartResponse | null>(null)
 
 const cartItemCount = computed(() => {
   return cartItems.value.reduce(
-    (total, item) => total + item.quantity,
+    (total, item) =>
+      total
+      + cartItemUnitPriceCents(item)
+        * item.quantity,
     0,
   )
 })
+
+function cartItemUnitPriceCents(
+  item: CartItem,
+): number {
+  return item.unitPriceCents
+    + (
+      item.bbqAddOn
+        ? item.bbqAddOnPriceCents
+        : 0
+    )
+}
 
 const cartSubtotalCents = computed(() => {
   if (validatedCart.value) {
@@ -95,6 +109,34 @@ const cartSubtotalCents = computed(() => {
     0,
   )
 })
+
+
+async function handleCartBbqAddOnChange(
+  item: CartItem,
+): Promise<void> {
+  if (!item.bbqAddOnAvailable) {
+    item.bbqAddOn = false
+    return
+  }
+
+  if (checkoutOrder.value) {
+    const selectedValue = item.bbqAddOn
+
+    const released =
+      await resetPendingCheckout()
+
+    if (!released) {
+      item.bbqAddOn = !selectedValue
+      return
+    }
+  }
+
+  validatedCart.value = null
+  cartError.value = ''
+  finalSaleAccepted.value = false
+
+  await validateCart()
+}
 
 //paypal checkout
 const deliveryTelephone = ref('')
@@ -168,6 +210,8 @@ type TicketTier = {
   priceCents: number
   price: string
   priceSuffix: string
+  bbqAddOnAvailable: boolean
+  bbqAddOnPriceCents: number
   alternatePrice?: string
   features: string[]
   inventoryAvailable: number | null
@@ -184,6 +228,11 @@ type CartItem = {
   name: string
   quantity: number
   unitPriceCents: number
+
+  bbqAddOn: boolean
+  bbqAddOnAvailable: boolean
+  bbqAddOnPriceCents: number
+
   minimumPerOrder: number
   maximumPerOrder: number | null
 }
@@ -194,6 +243,10 @@ type ValidatedCartItem = {
   name: string
   quantity: number
   unitPriceCents: number
+
+  bbqAddOn: boolean
+  bbqAddOnPriceCents: number
+
   lineTotalCents: number
   available: number | null
   minimumPerOrder: number
@@ -422,6 +475,14 @@ async function addTicketToCart(
 
       unitPriceCents: ticket.priceCents,
 
+      bbqAddOn: false,
+
+      bbqAddOnAvailable:
+        ticket.bbqAddOnAvailable,
+
+      bbqAddOnPriceCents:
+        ticket.bbqAddOnPriceCents,
+
       minimumPerOrder:
         ticket.minimumPerOrder,
 
@@ -568,6 +629,9 @@ async function validateCart(): Promise<void> {
 
               quantity:
                 item.quantity,
+
+              bbqAddOn:
+                item.bbqAddOn,
             }),
           ),
         }),
@@ -678,6 +742,9 @@ async function createCheckoutOrder(): Promise<void> {
 
               quantity:
                 item.quantity,
+
+              bbqAddOn:
+                item.bbqAddOn,
             }),
           ),
 
@@ -1712,7 +1779,7 @@ async function submitNewsletter(): Promise<void> {
                 </h3>
 
                 <p class="mt-1 text-sm text-sand/75">
-                  {{ formatMoney(item.unitPriceCents) }}
+                  {{ formatMoney(cartItemUnitPriceCents(item)) }}
                   each
                 </p>
               </div>
@@ -1725,6 +1792,36 @@ async function submitNewsletter(): Promise<void> {
                 Remove
               </button>
             </div>
+
+            <!-- BBQ add-on -->
+            <label
+              v-if="item.bbqAddOnAvailable"
+              :for="`bbq-add-on-${item.ticketTypeId}`"
+              class="
+                mt-4 flex cursor-pointer items-start gap-3
+                rounded-lg border border-sand/20
+                bg-overlay-faint p-3
+              "
+            >
+              <input
+                :id="`bbq-add-on-${item.ticketTypeId}`"
+                v-model="item.bbqAddOn"
+                type="checkbox"
+                class="mt-0.5 size-5 shrink-0 cursor-pointer"
+                @change="handleCartBbqAddOnChange(item)"
+              >
+
+              <span class="font-body">
+                <span class="block font-black">
+                  Add BBQ access
+                </span>
+
+                <span class="text-sm text-sand/75">
+                  +{{ formatMoney(item.bbqAddOnPriceCents) }}
+                  per ticket
+                </span>
+              </span>
+            </label>
 
             <div class="mt-4 flex items-center justify-between">
               <label
@@ -1753,7 +1850,8 @@ async function submitNewsletter(): Promise<void> {
             <p class="mt-3 text-right font-black">
               {{
                 formatMoney(
-                  item.unitPriceCents * item.quantity
+                  cartItemUnitPriceCents(item)
+                    * item.quantity
                 )
               }}
             </p>
