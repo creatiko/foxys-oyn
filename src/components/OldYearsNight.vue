@@ -56,6 +56,9 @@ type TicketTier = {
   priceSuffix: string
   alternatePrice?: string
 
+  bbqAddOnAvailable: boolean
+  bbqAddOnPriceCents: number
+
   features: string[]
 
   inventoryAvailable: number | null
@@ -75,6 +78,9 @@ type TicketApiTier = {
   priceCents: number
   priceSuffix: string | null
   alternatePrice: string | null
+
+  bbqAddOnAvailable: boolean
+  bbqAddOnPriceCents: number
 
   features: string[]
 
@@ -472,6 +478,12 @@ async function loadTickets(): Promise<void> {
 
         alternatePrice:
           ticket.alternatePrice ?? undefined,
+          
+          bbqAddOnAvailable:
+            ticket.bbqAddOnAvailable,
+
+          bbqAddOnPriceCents:
+            ticket.bbqAddOnPriceCents,
 
         features: ticket.features,
 
@@ -836,7 +848,7 @@ onBeforeUnmount(() => {
 
           <div
             v-if="ticketsLoading"
-            class="flex h-[30svh] min-h-60 items-center justify-center text-center font-body text-lg"
+            class="flex h-[60svh] min-h-80 items-center justify-center text-center font-body text-lg"
           >
             Loading tickets…
           </div>
@@ -850,7 +862,7 @@ onBeforeUnmount(() => {
 
           <template v-else>
             <div
-              class="mt-6 grid h-[20svh] grid-cols-4 gap-5"
+              class="mt-6 grid h-[30svh] grid-cols-4 gap-5"
               aria-label="Old Year's Night ticket options"
             >
               <article
@@ -875,7 +887,7 @@ onBeforeUnmount(() => {
 
                 <div class="relative z-10">
                   <h3
-                    class="text-xl leading-none font-black tracking-[0.02em] font-body xl:text-2xl"
+                    class="text-xl leading-none font-black tracking-[0.02em] font-body xl:text-xl"
                   >
                     {{ ticket.name }}
                   </h3>
