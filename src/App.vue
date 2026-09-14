@@ -79,9 +79,7 @@ const validatedCart = ref<ValidatedCartResponse | null>(null)
 const cartItemCount = computed(() => {
   return cartItems.value.reduce(
     (total, item) =>
-      total
-      + cartItemUnitPriceCents(item)
-        * item.quantity,
+      total + item.quantity,
     0,
   )
 })
@@ -105,7 +103,8 @@ const cartSubtotalCents = computed(() => {
   return cartItems.value.reduce(
     (total, item) =>
       total
-      + item.unitPriceCents * item.quantity,
+      + cartItemUnitPriceCents(item)
+        * item.quantity,
     0,
   )
 })
